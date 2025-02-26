@@ -53,7 +53,11 @@ module SecureKeys
         secure_keys_xcframework_path = SecureKeys::Globals.secure_keys_xcframework_path
         xcodeproj_path = SecureKeys::Globals.xcodeproj_path
 
-        Core::Console::Logger.crash!(message: 'The secure keys XCFramework path or the Xcodeproj path is empty') if secure_keys_xcframework_path.to_s.empty? || xcodeproj_path.to_s.empty?
+        Core::Console::Logger.important(message: "Secure keys XCFramework path: #{secure_keys_xcframework_path}")
+        Core::Console::Logger.important(message: "Xcodeproj path: #{xcodeproj_path}")
+
+        Core::Console::Logger.crash!(message: 'The secure keys XCFramework path is empty') if secure_keys_xcframework_path.to_s.empty?
+        Core::Console::Logger.crash!(message: 'The secure keys Xcodeproj path is empty') if xcodeproj_path.to_s.empty?
 
         secure_keys_xcframework_path_name = Pathname.new(SecureKeys::Globals.secure_keys_xcframework_path)
 
