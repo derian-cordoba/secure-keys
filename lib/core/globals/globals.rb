@@ -37,6 +37,8 @@ module SecureKeys
     # Returns the Xcode project path
     # @return [String] Xcode project path
     def xcodeproj_path
+      Core::Console::Logger.important(message: Core::Console::Argument::Handler.fetch(key: :xcodeproj, default: Dir.glob('**/*.xcodeproj').first))
+
       Core::Console::Argument::Handler.fetch(key: :xcodeproj,
                                              default: Dir.glob('**/*.xcodeproj').first)
     end
@@ -44,6 +46,9 @@ module SecureKeys
     # Returns the secure keys XCFramework path
     # @return [String] secure keys XCFramework path
     def secure_keys_xcframework_path
+      Core::Console::Logger.important(message: Dir.pwd)
+      Core::Console::Logger.important(message: "#{Dir.pwd}/#{Swift::KEYS_DIRECTORY}/#{Swift::XCFRAMEWORK_DIRECTORY}")
+      Core::Console::Logger.important(message: Dir.glob("**/#{Swift::KEYS_DIRECTORY}/#{Swift::XCFRAMEWORK_DIRECTORY}").first)
       Dir.glob("**/#{Swift::KEYS_DIRECTORY}/#{Swift::XCFRAMEWORK_DIRECTORY}").first
     end
 
