@@ -42,6 +42,7 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'optparse', '~> 0.6.0'
   spec.add_runtime_dependency 'osx_keychain', '~> 1.0.2'
   spec.add_runtime_dependency 'tty-screen', '~> 0.8.2'
+  spec.add_runtime_dependency 'xcodeproj', '~> 1.27.0'
   spec.add_development_dependency 'rspec', '~> 3.13.0'
   spec.add_development_dependency 'rubocop', '~> 1.71.2'
   spec.add_development_dependency 'ruby-debug-ide', '~> 0.7.5'

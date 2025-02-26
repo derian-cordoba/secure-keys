@@ -137,11 +137,13 @@ secure-keys --help
 
 Usage: secure-keys [--options]
 
-    -h, --help                       Use the provided commands to select the params
-    -d, --delimiter DELIMITER        The delimiter to use for the key access (default: ",")
-    -i, --identifier IDENTIFIER      The identifier to use for the key access (default: "secure-keys")
-        --verbose                    Enable verbose mode (default: false)
-    -v, --version                    Show the secure-keys version
+    -h, --help                                  Use the provided commands to select the params
+        --add-xcframework-to-target TARGET      Add the xcframework to the target
+    -d, --delimiter DELIMITER                   The delimiter to use for the key access (default: ",")
+    -i, --identifier IDENTIFIER                 The identifier to use for the key access (default: "secure-keys")
+        --verbose                               Enable verbose mode (default: false)
+    -v, --version                               Show the secure-keys version
+    -x, --xcodeproj XCODEPROJ                   The Xcode project path (default: the first found Xcode project)
 ```
 
 To avoid defining the `SECURE_KEYS_IDENTIFIER` and `SECURE_KEYS_DELIMITER` env variables, you can use the `--identifier` and `--delimiter` options.
@@ -183,6 +185,27 @@ let apiKey: String = .key(for: .apiKey)
 ```
 
 ## How to install the `SecureKeys.xcframework` in the iOS project
+
+### Automatically
+
+From the `secure-keys` command, you can use the `--add-xcframework-to-target` option to add the `SecureKeys.xcframework` to the iOS project.
+
+```bash
+secure-keys --add-xcframework-to-target "YourTargetName"
+```
+
+Also, you can specify your Xcode project path using the `--xcodeproj` option.
+
+```bash
+secure-keys --add-xcframework-to-target "YourTargetName" --xcodeproj "/path/to/your/project.xcodeproj"
+```
+
+> [!IMPORTANT]
+> By default, the xcodeproj path would be the first found Xcode project.
+
+This command will generate the `SecureKeys.xcframework` and add it to the iOS project.
+
+### Manually
 
 1. From the iOS project, click on the project target, select the `General` tab, and scroll down to the `Frameworks, Libraries, and Embedded Content` section.
 

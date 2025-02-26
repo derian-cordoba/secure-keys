@@ -3,6 +3,9 @@
 require_relative './swift'
 require_relative '../../globals/globals'
 require_relative '../../console/shell'
+require_relative '../../console/logger'
+require_relative '../../console/arguments/handler'
+require_relative '../swift/xcodeproj'
 
 module SecureKeys
   module Swift
@@ -13,12 +16,13 @@ module SecureKeys
         # Currently this is failling with the following error:
         # "library with the identifier 'ios-arm64' already exists."
         %w[Release].each do |configuration|
-          SecureKeys::Globals.ios_platforms.each do |platform|
+          Globals.ios_platforms.each do |platform|
             generate_key_modules(configuration:, platform:)
             generate_key_libraries(configuration:, platform: platform[:path])
           end
         end
         generate_key_xcframework
+        add_xcframework_to_xcodeproj_target_if_needed
       end
 
       private
@@ -76,6 +80,22 @@ module SecureKeys
             "-library #{BUILD_DIRECTORY}/#{configuration}-#{platform[:path]}/lib#{SWIFT_PACKAGE_NAME}.a"
           end.join(' ')
         end.join(' ')
+      end
+
+      # Add the XCFramework to the Xcode project target if needed
+      # @param target_name [String] The target name to add the XCFramework
+      def add_xcframework_to_xcodeproj_target_if_needed(target_name: nil)
+        target_name ||= Core::Console::Argument::Handler.fetch(key: :target)
+        return if target_name.to_s.empty?
+
+        Core::Console::Logger.important(message: "Adding the XCFramework to the target '#{target_name}'")
+        xcodeproj = Xcodeproj.xcodeproj
+        xcodeproj_target = Xcodeproj.xcodeproj_target_by_target_name(xcodeproj:, target_name:)
+        Xcodeproj.add_framework_search_path(xcodeproj_target:)
+        Xcodeproj.add_xcframework_to_build_phases(xcodeproj:, xcodeproj_target:)
+
+        xcodeproj.save
+        Core::Console::Logger.success(message: "The XCFramework was added to the target '#{target_name}'")
       end
     end
   end

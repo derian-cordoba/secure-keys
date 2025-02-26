@@ -11,7 +11,9 @@ module SecureKeys
           @arguments = {
             delimiter: nil,
             identifier: nil,
+            target: nil,
             verbose: false,
+            xcodeproj: nil,
           }
 
           # Fetch the argument value by key

@@ -21,10 +21,13 @@ describe(SecureKeys::Core::Console::Argument::Parser) do
       'Usage: secure-keys [--options]',
       '',
       '-h, --help                       Use the provided commands to select the params',
+      '--add-xcframework-to-target TARGET',
+      'Add the xcframework to the target',
       '-d, --delimiter DELIMITER        The delimiter to use for the key access (default: ",")',
       '-i, --identifier IDENTIFIER      The identifier to use for the key access (default: "secure-keys")',
       '--verbose                    Enable verbose mode (default: false)',
-      '-v, --version                    Show the secure-keys version'
+      '-v, --version                    Show the secure-keys version',
+      '-x, --xcodeproj XCODEPROJ        The Xcode project path (default: the first found Xcode project)'
     ]
 
     # when
