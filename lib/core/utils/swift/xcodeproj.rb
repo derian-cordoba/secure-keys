@@ -1,5 +1,7 @@
 require 'xcodeproj'
 require_relative '../../globals/globals'
+require_relative '../../utils/swift/swift'
+require_relative '../../console/logger'
 
 module SecureKeys
   module Swift
@@ -20,6 +22,7 @@ module SecureKeys
       # @param xcodeproj [Xcodeproj::Project] The Xcodeproj to add the XCFramework
       # @param xcodeproj_target [Xcodeproj] The Xcodeproj target to add the XCFramework
       def add_xcframework_to_build_phases(xcodeproj:, xcodeproj_target:)
+        Core::Console::Logger.crash!(message: "The xcodeproj #{xcodeproj} already have the #{XCFRAMEWORK_DIRECTORY}") if xcodeproj_has_secure_keys_xcframework?(xcodeproj:)
         xcframework_reference = xcodeproj.frameworks_group.new_file(xcframework_relative_path)
         xcodeproj_target.frameworks_build_phase.add_file_reference(xcframework_reference)
       end
@@ -39,9 +42,7 @@ module SecureKeys
       # Get the Xcodeproj
       # @return [Xcodeproj] The Xcodeproj
       def xcodeproj
-        xcodeproj = ::Xcodeproj::Project.open(SecureKeys::Globals.xcodeproj_path)
-        Core::Console::Logger.crash!(message: "The xcodeproj #{xcodeproj} already have the #{XCFRAMEWORK_DIRECTORY}") if xcodeproj_has_secure_keys_xcframework?(xcodeproj:)
-        xcodeproj
+        ::Xcodeproj::Project.open(SecureKeys::Globals.xcodeproj_path)
       end
 
       # Get the XCFramework relative path

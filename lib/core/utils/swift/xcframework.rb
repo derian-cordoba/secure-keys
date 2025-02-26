@@ -89,7 +89,6 @@ module SecureKeys
         return if target_name.to_s.empty?
 
         Core::Console::Logger.important(message: "Adding the XCFramework to the target '#{target_name}'")
-
         xcodeproj = Xcodeproj.xcodeproj
         xcodeproj_target = Xcodeproj.xcodeproj_target_by_target_name(xcodeproj:, target_name:)
         Xcodeproj.add_framework_search_path(xcodeproj_target:)
