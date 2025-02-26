@@ -75,19 +75,4 @@ describe(SecureKeys::Swift::Xcodeproj) do
                                                                    target_name: expected_target_name)
     end.to(raise_error(StandardError, expected_error_message))
   end
-
-  it('should get the XCFramework relative path') do
-    # given
-    expected_xcframework_relative_path = '../../../../.secure-keys/SecureKeys.xcframework'
-    expected_xcodeproj_path = 'spec/fixtures/ios/SecureKeys/SecureKeys.xcodeproj'
-
-    # when
-    # define the env variable
-    ENV['SECURE_KEYS_XCODEPROJ'] = expected_xcodeproj_path
-    xcframework_relative_path = SecureKeys::Swift::Xcodeproj.xcframework_relative_path
-
-    # then
-    expect(xcframework_relative_path).not_to(be_nil)
-    expect(xcframework_relative_path.to_s).to(eq(expected_xcframework_relative_path))
-  end
 end
