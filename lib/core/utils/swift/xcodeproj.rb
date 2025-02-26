@@ -48,8 +48,6 @@ module SecureKeys
       # Get the XCFramework relative path
       # @return [Pathname] The XCFramework relative path
       def xcframework_relative_path
-        Core::Console::Logger.important(message: Dir.pwd)
-
         secure_keys_xcframework_path = SecureKeys::Globals.secure_keys_xcframework_path
         xcodeproj_path = SecureKeys::Globals.xcodeproj_path
 
