@@ -3,6 +3,14 @@ require 'core/console/arguments/handler'
 require 'core/utils/swift/xcodeproj'
 
 describe(SecureKeys::Swift::Xcodeproj) do
+  before(:each) do
+    # reset the argument handler
+    SecureKeys::Core::Console::Argument::Handler.reset
+
+    # reset the env variable
+    ENV['SECURE_KEYS_XCODEPROJ'] = nil
+  end
+
   it('should find the xcodeproj from env variables') do
     # given
     expected_target_name = 'SecureKeys'
@@ -71,9 +79,11 @@ describe(SecureKeys::Swift::Xcodeproj) do
   it('should get the XCFramework relative path') do
     # given
     expected_xcframework_relative_path = '../../../../.secure-keys/SecureKeys.xcframework'
+    expected_xcodeproj_path = 'spec/fixtures/ios/SecureKeys/SecureKeys.xcodeproj'
 
     # when
     # define the env variable
+    ENV['SECURE_KEYS_XCODEPROJ'] = expected_xcodeproj_path
     xcframework_relative_path = SecureKeys::Swift::Xcodeproj.xcframework_relative_path
 
     # then
