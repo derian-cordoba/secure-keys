@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 
 require_relative '../console/arguments/handler'
+require_relative '../utils/swift/swift'
 
 module SecureKeys
   module Globals
@@ -44,7 +45,8 @@ module SecureKeys
     # Returns the secure keys XCFramework path
     # @return [String] secure keys XCFramework path
     def secure_keys_xcframework_path
-      Dir.glob("**/#{Swift::KEYS_DIRECTORY}/#{Swift::XCFRAMEWORK_DIRECTORY}").first
+      Dir.glob(["**/#{Swift::KEYS_DIRECTORY}/#{Swift::XCFRAMEWORK_DIRECTORY}",
+                "../**/#{Swift::KEYS_DIRECTORY}/#{Swift::XCFRAMEWORK_DIRECTORY}"]).first
     end
 
     # Returns the supported iOS platforms
