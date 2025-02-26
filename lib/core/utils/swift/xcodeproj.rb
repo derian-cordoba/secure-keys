@@ -48,20 +48,8 @@ module SecureKeys
       # Get the XCFramework relative path
       # @return [Pathname] The XCFramework relative path
       def xcframework_relative_path
-        secure_keys_xcframework_path = SecureKeys::Globals.secure_keys_xcframework_path
-        xcodeproj_path = SecureKeys::Globals.xcodeproj_path
-
-        Core::Console::Logger.crash!(message: 'The secure keys XCFramework path or the Xcodeproj path is empty') if secure_keys_xcframework_path.to_s.empty? || xcodeproj_path.to_s.empty?
-
-        secure_keys_xcframework_path_name = Pathname.new(SecureKeys::Globals.secure_keys_xcframework_path)
-
-        Core::Console::Logger.important(message: "Secure keys XCFramework path: #{secure_keys_xcframework_path_name}")
-
-        xcodeproj_path_name = Pathname.new(SecureKeys::Globals.xcodeproj_path).dirname
-
-        Core::Console::Logger.important(message: "Xcodeproj path: #{xcodeproj_path_name}")
-
-        secure_keys_xcframework_path_name.relative_path_from(xcodeproj_path_name)
+        Pathname.new(SecureKeys::Globals.secure_keys_xcframework_path)
+                .relative_path_from(Pathname.new(SecureKeys::Globals.xcodeproj_path).dirname)
       end
 
       # Check if the Xcode project has the secure keys XCFramework
