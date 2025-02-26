@@ -49,7 +49,7 @@ module SecureKeys
       # @return [Pathname] The XCFramework relative path
       def xcframework_relative_path
         Pathname.new(SecureKeys::Globals.secure_keys_xcframework_path)
-                .relative_path_from(Pathname(SecureKeys::Globals.xcodeproj_path).dirname)
+                .relative_path_from(Pathname.new(SecureKeys::Globals.xcodeproj_path).dirname)
       end
 
       # Check if the Xcode project has the secure keys XCFramework
