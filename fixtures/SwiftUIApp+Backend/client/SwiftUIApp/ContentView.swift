@@ -6,14 +6,16 @@
 //
 
 import SwiftUI
+import SecureKeys
 
 struct ContentView: View {
     var body: some View {
         VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+            Text("My super secret key: \(key(for: .superSecret))")
+            
+            Text("Firebase API key: \(key(for: .firebaseApiKey))")
+            
+            Text("Stripe API key: \(key(for: .stripeApiKey))")
         }
         .padding()
     }

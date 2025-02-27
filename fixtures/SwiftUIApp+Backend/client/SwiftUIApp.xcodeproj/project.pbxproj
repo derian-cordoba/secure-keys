@@ -6,13 +6,20 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		2B68E3842919AAF41A9E4CB0 /* SecureKeys.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 09AAD5F1C874B8B11A3B20C6 /* SecureKeys.xcframework */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
+		09AAD5F1C874B8B11A3B20C6 /* SecureKeys.xcframework */ = {isa = PBXFileReference; includeInIndex = 1; name = SecureKeys.xcframework; path = "../../../.secure-keys/SecureKeys.xcframework"; sourceTree = "<group>"; };
 		E07CCD9E2D6FC82F005D4B4A /* SwiftUIApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SwiftUIApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		E07CCDA02D6FC82F005D4B4A /* SwiftUIApp */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = SwiftUIApp;
 			sourceTree = "<group>";
 		};
@@ -23,17 +30,27 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2B68E3842919AAF41A9E4CB0 /* SecureKeys.xcframework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		182C6682F006D2E731490B0C /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				09AAD5F1C874B8B11A3B20C6 /* SecureKeys.xcframework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		E07CCD952D6FC82E005D4B4A = {
 			isa = PBXGroup;
 			children = (
 				E07CCDA02D6FC82F005D4B4A /* SwiftUIApp */,
 				E07CCD9F2D6FC82F005D4B4A /* Products */,
+				182C6682F006D2E731490B0C /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -64,8 +81,6 @@
 				E07CCDA02D6FC82F005D4B4A /* SwiftUIApp */,
 			);
 			name = SwiftUIApp;
-			packageProductDependencies = (
-			);
 			productName = SwiftUIApp;
 			productReference = E07CCD9E2D6FC82F005D4B4A /* SwiftUIApp.app */;
 			productType = "com.apple.product-type.application";
@@ -253,6 +268,10 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"SwiftUIApp/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)/../../../.secure-keys/SecureKeys.xcframework",
+				);
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -281,6 +300,10 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"SwiftUIApp/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)/../../../.secure-keys/SecureKeys.xcframework",
+				);
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
