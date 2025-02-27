@@ -72,7 +72,10 @@ app.post("/login", (request, response) => {
   response.json({
     data: {
       message: "Login successful",
-      user,
+      user: {
+        id: user.id,
+        token: user.token,
+      },
     },
   });
 });
