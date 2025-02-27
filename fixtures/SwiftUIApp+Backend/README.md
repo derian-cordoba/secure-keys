@@ -1,5 +1,8 @@
 # SwiftUIApp + Backend project
 
+> [!WARNING]
+> For this fixture, the secrets are printed in the console for demonstration purposes. In a real-world scenario, you should never print secrets in the console, logs, or any other output.
+
 This fixture contains a SwiftUI app that consumes the `SecureKeys` xcframework to securely store and retrieve secrets.
 
 Also included is a backend project that provides an API for user authentication and retrieving super secrets, simulating a real-world scenario where the entire team works with a Secret Manager like `1Password`, `LastPass`, or `AWS Secrets Manager`.

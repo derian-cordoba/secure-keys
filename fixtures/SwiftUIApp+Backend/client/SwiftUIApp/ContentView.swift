@@ -9,13 +9,17 @@ import SwiftUI
 import SecureKeys
 
 struct ContentView: View {
+    
+    // Initializer to print the keys (Testing purposes)
+    init() {
+        print("My super secret key: \(key(for: .superSecret))")
+        print("Firebase API key: \(key(for: .firebaseApiKey))")
+        print("Stripe API key: \(key(for: .stripeApiKey))")
+    }
+    
     var body: some View {
         VStack {
-            Text("My super secret key: \(key(for: .superSecret))")
-            
-            Text("Firebase API key: \(key(for: .firebaseApiKey))")
-            
-            Text("Stripe API key: \(key(for: .stripeApiKey))")
+            Text("SwiftUI app + Backend fixture")
         }
         .padding()
     }
