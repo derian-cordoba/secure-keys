@@ -1,0 +1,5 @@
+# Generated code
+build/
+
+# NodeJS dependencies
+node_modules/

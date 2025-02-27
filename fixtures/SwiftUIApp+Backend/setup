@@ -1,0 +1,55 @@
+#!/usr/bin/env bash
+
+USER_ID=${1:-"1234"}
+PASSWORD=${2:-"my-secret-password"}
+SECURE_KEYS_IDENTIFIER=${3:-$SECURE_KEYS_IDENTIFIER}
+SECURE_KEYS_IDENTIFIER=${SECURE_KEYS_IDENTIFIER:-"secure-keys"}
+
+# Login to the server
+# $1: user_id
+# $2: password
+function login() {
+  curl -sS -X POST http://localhost:8080/login \
+    -H "Content-Type: application/json" \
+    -d "{\"id\":\"${USER_ID}\",\"password\":\"${PASSWORD}\"}"
+}
+
+# Fetch super secrets
+# $1: user_id
+# $2: token
+function fetch_super_secrets() {
+  local token=${1:-"token"}
+
+  curl -sS -X GET "http://localhost:8080/super-secrets?id=$USER_ID" \
+    -H "Authorization: Bearer $token" \
+    -H "Content-Type: application/json"
+}
+
+# Login to the server
+token="$(login | jq -r .data.user.token)"
+
+# Fetch super secrets
+secrets="$(fetch_super_secrets $token | jq -r '.data.secrets[] | "\(.name)=\(.value)"')"
+
+# Get all keys
+secrets_keys=$(echo "$secrets" | awk -F= '{print $1}' | paste -sd "," -)
+
+# Check if we are running in CI
+if [[ "$CI" == true ]]; then
+  echo "Skipping adding secrets to the keychain in CI"
+  echo -e "You can export the following environment variable to add the secrets to the keychain:\n"
+
+  # Print the secrets as environment variables
+  echo "export SECURE_KEYS_IDENTIFIER=\"$secrets_keys\""
+  while IFS="=" read -r key value; do
+    echo "export $key=\"$value\""
+  done <<< "$secrets"
+else
+  # Add secure identifier value to the keychain
+  security add-generic-password -a "$SECURE_KEYS_IDENTIFIER" -s "$SECURE_KEYS_IDENTIFIER" -w "$secrets_keys" || true
+
+  # Add each secret to the keychain
+  while IFS="=" read -r key value; do
+    security add-generic-password -a "$SECURE_KEYS_IDENTIFIER" -s "$key" -w "$value" || true
+  done <<< "$secrets"
+fi
