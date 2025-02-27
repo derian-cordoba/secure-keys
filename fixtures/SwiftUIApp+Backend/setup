@@ -34,17 +34,21 @@ secrets="$(fetch_super_secrets $token | jq -r '.data.secrets[] | "\(.name)=\(.de
 # Get all keys
 secrets_keys=$(echo "$secrets" | awk -F= '{print $1}' | paste -sd "," -)
 
-# Add secrets to the keychain
+# Check if we are running in CI
 if [[ "$CI" == true ]]; then
   echo "Skipping adding secrets to the keychain in CI"
   echo -e "You can export the following environment variable to add the secrets to the keychain:\n"
 
+  # Print the secrets as environment variables
   echo "export SECURE_KEYS_IDENTIFIER=\"$secrets_keys\""
   while IFS="=" read -r key value; do
     echo "export $key=\"$value\""
   done <<< "$secrets"
 else
+  # Add secure identifier value to the keychain
   security add-generic-password -a "$SECURE_KEYS_IDENTIFIER" -s "$SECURE_KEYS_IDENTIFIER" -w "$secrets_keys" || true
+
+  # Add each secret to the keychain
   while IFS="=" read -r key value; do
     security add-generic-password -a "$SECURE_KEYS_IDENTIFIER" -s "$key" -w "$value" || true
   done <<< "$secrets"
