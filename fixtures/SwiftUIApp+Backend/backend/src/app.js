@@ -25,14 +25,17 @@ const superSecrets = {
   secrets: [
     {
       name: "superSecret",
+      value: "your-super-secret-value",
       description: "This is a super secret",
     },
     {
       name: "firebaseApiKey",
+      value: "your-firebase-api-key",
       description: "Firebase API Key",
     },
     {
       name: "stripeApiKey",
+      value: "your-stripe-api-key",
       description: "Stripe API Key",
     },
   ],

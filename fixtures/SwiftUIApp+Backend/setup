@@ -29,7 +29,7 @@ function fetch_super_secrets() {
 token="$(login | jq -r .data.user.token)"
 
 # Fetch super secrets
-secrets="$(fetch_super_secrets $token | jq -r '.data.secrets[] | "\(.name)=\(.description)"')"
+secrets="$(fetch_super_secrets $token | jq -r '.data.secrets[] | "\(.name)=\(.value)"')"
 
 # Get all keys
 secrets_keys=$(echo "$secrets" | awk -F= '{print $1}' | paste -sd "," -)
