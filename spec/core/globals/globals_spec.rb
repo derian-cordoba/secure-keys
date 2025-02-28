@@ -11,6 +11,59 @@ describe(SecureKeys::Globals) do
     ENV['SECURE_KEYS_DELIMITER'] = nil
     ENV['SECURE_KEYS_VERBOSE'] = nil
     ENV['VERBOSE'] = nil
+    ENV['CI'] = nil
+  end
+
+  it('should be CI actived from environment') do
+    # given
+    expected_ci = true
+
+    # when
+    ENV['CI'] = expected_ci.to_s
+
+    # then
+    expect(SecureKeys::Globals.ci?).to(eq(expected_ci))
+    expect(SecureKeys::Globals.ci?).to(eq(expected_ci.to_s.to_boolean))
+  end
+
+  it('should be deactivated CI from environment') do
+    # given
+    expected_ci = false
+
+    # when
+    ENV['CI'] = expected_ci.to_s
+
+    # then
+    expect(SecureKeys::Globals.ci?).to(eq(expected_ci))
+    expect(SecureKeys::Globals.ci?).to(eq(expected_ci.to_s.to_boolean))
+  end
+
+  it('should be CI actived from environment (CIRCLECI)') do
+    # given
+    expected_ci = true
+
+    # when
+    ENV['CIRCLECI'] = expected_ci.to_s
+
+    # then
+    expect(SecureKeys::Globals.ci?).to(eq(expected_ci))
+    expect(SecureKeys::Globals.ci?).to(eq(expected_ci.to_s.to_boolean))
+    expect(SecureKeys::Globals.circle_ci?).to(eq(expected_ci))
+    expect(SecureKeys::Globals.circle_ci?).to(eq(expected_ci.to_s.to_boolean))
+  end
+
+  it('should be actived from each CI environment variable') do
+    # given
+    expected_ci = true
+
+    # when
+    %w[JENKINS_HOME JENKINS_URL TRAVIS CI APPCENTER_BUILD_ID TEAMCITY_VERSION GO_PIPELINE_NAME bamboo_buildKey GITLAB_CI XCS TF_BUILD GITHUB_ACTION GITHUB_ACTIONS BITRISE_IO BUDDY CODEBUILD_BUILD_ARN].each do |current|
+      ENV[current] = expected_ci.to_s
+
+      # then
+      expect(SecureKeys::Globals.ci?).to(eq(expected_ci))
+      expect(SecureKeys::Globals.ci?).to(eq(expected_ci.to_s.to_boolean))
+    end
   end
 
   it('should be the default access key value') do
