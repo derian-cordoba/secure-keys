@@ -15,7 +15,7 @@ module SecureKeys
 
       # Check for Jenkins, Travis CI, ... environment variables
       %w[JENKINS_HOME JENKINS_URL TRAVIS CI APPCENTER_BUILD_ID TEAMCITY_VERSION GO_PIPELINE_NAME bamboo_buildKey GITLAB_CI XCS TF_BUILD GITHUB_ACTION GITHUB_ACTIONS BITRISE_IO BUDDY CODEBUILD_BUILD_ARN].any? do |current|
-        ENV[current].to_s.eql?('true')
+        ENV[current].to_s.to_boolean
       end
     end
 
@@ -29,10 +29,8 @@ module SecureKeys
     # @return [Bool] true if the current instance is verbose
     def verbose?
       Core::Console::Argument::Handler.fetch(key: :verbose,
-                                             default: ENV.fetch('VERBOSE', false))
-                                      .to_s
-                                      .downcase
-                                      .eql?('true')
+                                             default: ENV.fetch('VERBOSE', 'false'))
+                                      .to_boolean
     end
 
     # Returns the Xcode project path
