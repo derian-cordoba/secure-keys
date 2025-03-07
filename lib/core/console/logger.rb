@@ -54,7 +54,7 @@ module SecureKeys
         # Log a verbose message
         # @param message [String] the message to log
         def verbose(message:)
-          logger.debug(message.to_s) if AWSTracker::Global.verbose?
+          logger.debug(message.to_s) if Globals.verbose?
         end
 
         # Crash the terminal with a message
