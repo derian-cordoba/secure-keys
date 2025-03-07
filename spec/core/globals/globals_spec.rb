@@ -32,6 +32,7 @@ describe(SecureKeys::Globals) do
 
     # when
     ENV['CI'] = expected_ci.to_s
+    ENV['GITHUB_ACTIONS'] = expected_ci.to_s
 
     # then
     expect(SecureKeys::Globals.ci?).to(eq(expected_ci))
