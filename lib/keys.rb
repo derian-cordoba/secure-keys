@@ -1,5 +1,6 @@
 #!/usr/bin/env ruby
 
+require_relative './core/utils/extensions/kernel'
 require_relative './core/globals/globals'
 require_relative './core/environment/ci'
 require_relative './core/environment/keychain'

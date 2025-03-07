@@ -30,8 +30,6 @@ module SecureKeys
         end
       end
 
-      private
-
       # Generate the formatted keys content using Swift code format
       # @return [String] The formatted keys content
       def formatted_keys
@@ -44,7 +42,7 @@ module SecureKeys
             /// The decrypted value of the key
             public var decryptedValue: String {
                 switch self {
-                    #{mapped_keys.map { |key| switch_case_key_declaration_template(name: key[:name], value: key[:value], iv: key[:iv], tag: key[:tag]) }.join("\t\t\t")}
+                    #{mapped_keys.map { |key| switch_case_key_declaration_template(name: key[:name], value: key[:value], iv: key[:iv], tag: key[:tag]) }.join("\t\t")}
                     case .unknown: fatalError("Unknown key \\(rawValue)")
                 }
             }
@@ -61,25 +59,7 @@ module SecureKeys
         import Foundation
         import CryptoKit
 
-        // MARK: - Global methods
-
-        /// Fetch the decrypted value of the key
-        ///
-        /// - Parameter:
-        ///    - key: The key to fetch the decrypted value for
-        ///
-        /// - Returns: The decrypted value of the key
-        @available(iOS 13.0, *)
-        public func key(for key: SecureKey) -> String { key.decryptedValue }
-
-        /// Fetch the decrypted value of the key
-        ///
-        /// - Parameter:
-        ///    - key: The key to fetch the decrypted value for
-        ///
-        /// - Returns: The decrypted value of the key
-        @available(iOS 13.0, *)
-        public func key(_ key: SecureKey) -> String { key.decryptedValue }
+        #{key_swift_global_helper_functions}
 
         // MARK: - SecureKey enum
 
@@ -92,50 +72,95 @@ module SecureKeys
             #{content}
         }
 
-        // MARK: - Decrypt keys from array extension
+        #{key_array_decrypt_swift_extension}
 
-        @available(iOS 13.0, *)
-        extension Array where Element == UInt8 {
-
-            // MARK: - Methods
-
-            func decrypt(key: [UInt8], iv: [UInt8], tag: [UInt8]) -> String {
-                guard let sealedBox = try? AES.GCM.SealedBox(nonce: AES.GCM.Nonce(data: Data(iv)),
-                                                             ciphertext: Data(self),
-                                                             tag: Data(tag)),
-                      let decryptedData = try? AES.GCM.open(sealedBox, using: SymmetricKey(data: Data(key))),
-                      let decryptedKey = String(data: decryptedData, encoding: .utf8) else {
-                    fatalError("Failed to decrypt the key")
-                }
-                return decryptedKey
-            }
-        }
-
-        // MARK: - String extension for secure keys
-
-        @available(iOS 13.0, *)
-        extension String {
-
-            // MARK: - Methods
-
-            /// Fetch the key from the secure keys enum
-            public var secretKey: SecureKey { SecureKey(rawValue: self) ?? .unknown }
-
-            /// Fetch the decrypted value of the key
-            ///
-            /// - Parameters:
-            ///    - key: The key to fetch the decrypted value for
-            ///
-            /// - Returns: The decrypted value of the key
-            public static func key(for key: SecureKey) -> String { key.decryptedValue }
-        }
+        #{key_string_swift_extension}
 
         // swiftlint:enable all
         SWIFT
       end
 
+      private
+
+      # Generate the key global helper functions
+      # @return [String] The key global helper functions
+      def key_swift_global_helper_functions
+        <<~SWIFT
+          // MARK: - Global methods
+
+          /// Fetch the decrypted value of the key
+          ///
+          /// - Parameter:
+          ///    - key: The key to fetch the decrypted value for
+          ///
+          /// - Returns: The decrypted value of the key
+          @available(iOS 13.0, *)
+          public func key(for key: SecureKey) -> String { key.decryptedValue }
+
+          /// Fetch the decrypted value of the key
+          ///
+          /// - Parameter:
+          ///    - key: The key to fetch the decrypted value for
+          ///
+          /// - Returns: The decrypted value of the key
+          @available(iOS 13.0, *)
+          public func key(_ key: SecureKey) -> String { key.decryptedValue }
+        SWIFT
+      end
+
+      # Generate the key array decrypt extension
+      # @return [String] The key array decrypt extension
+      def key_array_decrypt_swift_extension
+        <<~SWIFT
+          // MARK: - Decrypt keys from array extension
+
+          @available(iOS 13.0, *)
+          extension Array where Element == UInt8 {
+
+              // MARK: - Methods
+
+              func decrypt(key: [UInt8], iv: [UInt8], tag: [UInt8]) -> String {
+                  guard let sealedBox = try? AES.GCM.SealedBox(nonce: AES.GCM.Nonce(data: Data(iv)),
+                                                              ciphertext: Data(self),
+                                                              tag: Data(tag)),
+                        let decryptedData = try? AES.GCM.open(sealedBox, using: SymmetricKey(data: Data(key))),
+                        let decryptedKey = String(data: decryptedData, encoding: .utf8) else {
+                      fatalError("Failed to decrypt the key")
+                  }
+                  return decryptedKey
+              }
+          }
+        SWIFT
+      end
+
+      # Generate the key string extension
+      # @return [String] The key string extension
+      def key_string_swift_extension
+        <<~SWIFT
+          // MARK: - String extension for secure keys
+
+          @available(iOS 13.0, *)
+          extension String {
+
+              // MARK: - Methods
+
+              /// Fetch the key from the secure keys enum
+              public var secretKey: SecureKey { SecureKey(rawValue: self) ?? .unknown }
+
+              /// Fetch the decrypted value of the key
+              ///
+              /// - Parameters:
+              ///    - key: The key to fetch the decrypted value for
+              ///
+              /// - Returns: The decrypted value of the key
+              public static func key(for key: SecureKey) -> String { key.decryptedValue }
+          }
+        SWIFT
+      end
+
       # Generate the case key declaration template
       # @param name [String] The name of the key
+      # @return [String] The case key declaration template
       def case_key_declaration_template(name:)
         <<~SWIFT
         case #{name}
@@ -144,6 +169,10 @@ module SecureKeys
 
       # Generate the switch case key declaration template
       # @param name [String] The name of the key
+      # @param value [String] The value of the key
+      # @param iv [String] The IV of the key
+      # @param tag [String] The tag of the key
+      # @return [String] The switch case key declaration template
       def switch_case_key_declaration_template(name:, value:, iv:, tag:) # rubocop:disable Naming/MethodParameterName
         <<~SWIFT
         case .#{name}: #{value}.decrypt(key: #{secure_key_bytes}, iv: #{iv}, tag: #{tag})
