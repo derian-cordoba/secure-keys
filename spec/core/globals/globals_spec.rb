@@ -12,6 +12,8 @@ describe(SecureKeys::Globals) do
     ENV['SECURE_KEYS_VERBOSE'] = nil
     ENV['VERBOSE'] = nil
     ENV['CI'] = nil
+    ENV['CIRCLECI'] = nil
+    ENV['GITHUB_ACTIONS'] = nil
   end
 
   it('should be CI actived from environment') do
