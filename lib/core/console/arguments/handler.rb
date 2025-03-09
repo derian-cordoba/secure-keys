@@ -11,9 +11,7 @@ module SecureKeys
           @arguments = {
             delimiter: nil,
             identifier: nil,
-            target: nil,
             verbose: false,
-            xcodeproj: nil,
           }
 
           # Fetch the argument value by key
@@ -24,7 +22,19 @@ module SecureKeys
           #
           # @return [String] the argument value
           def self.fetch(key:, default: nil)
-            @arguments[key.to_sym] || ENV.fetch("secure_keys_#{key}".upcase, nil) || default
+            # We need to check if the key is an array to handle the fetch
+            # as deep search
+            @arguments.dig(*Array(key).map(&:to_sym)) || ENV.fetch("secure_keys_#{key}".upcase, nil) || default
+          end
+
+          # Append the argument value by key
+          # @param key [Symbol] the argument key
+          # @param value [String] the argument value
+          def self.append(key:, value:)
+            # We need to check if the key is already set to avoid overriding
+            return unless @arguments[key.to_sym].nil?
+
+            @arguments[key.to_sym] = value
           end
         end
       end
