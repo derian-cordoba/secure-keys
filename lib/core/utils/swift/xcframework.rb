@@ -85,7 +85,7 @@ module SecureKeys
       # Add the XCFramework to the Xcode project target if needed
       # @param target_name [String] The target name to add the XCFramework
       def add_xcframework_to_xcodeproj_target_if_needed(target_name: nil)
-        target_name ||= Core::Console::Argument::Handler.fetch(key: :target)
+        target_name ||= Core::Console::Argument::Handler.fetch(key: %i[xcframework target])
         return if target_name.to_s.empty?
 
         Core::Console::Logger.important(message: "Adding the XCFramework to the target '#{target_name}'")

@@ -18,7 +18,7 @@ module SecureKeys
             # Configure the arguement parser
             configure!
             order!(into: Handler.arguments)
-            append_sub_arguments
+            configure_sub_arguments
           end
 
           private
@@ -30,7 +30,7 @@ module SecureKeys
               exit(0)
             end
 
-            on('--xcframework', Object, 'Add the xcframework to the target') do
+            on('--xcframework', 'Add the xcframework to the target') do
               XCFramework::Parser.new
             end
 
@@ -44,9 +44,9 @@ module SecureKeys
             end
           end
 
-          # Append the sub arguments
-          def append_sub_arguments
-            Handler.append(key: :xcframework, arguments: XCFramework::Handler.arguments)
+          # Configure the sub arguments
+          def configure_sub_arguments
+            Handler.set(key: :xcframework, value: XCFramework::Handler.arguments)
           end
         end
       end

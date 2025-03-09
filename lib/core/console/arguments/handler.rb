@@ -22,19 +22,21 @@ module SecureKeys
           #
           # @return [String] the argument value
           def self.fetch(key:, default: nil)
-            # We need to check if the key is an array to handle the fetch
-            # as deep search
             @arguments.dig(*Array(key).map(&:to_sym)) || ENV.fetch("secure_keys_#{key}".upcase, nil) || default
+          end
+
+          # Set the value of the key
+          # @param key [Symbol] the key to be updated
+          # @param value [String] the value to be updated
+          def self.set(key:, value:)
+            @arguments[key.to_sym] = value
           end
 
           # Append the argument value by key
           # @param key [Symbol] the argument key
           # @param value [String] the argument value
-          def self.append(key:, value:)
-            # We need to check if the key is already set to avoid overriding
-            return unless @arguments[key.to_sym].nil?
-
-            @arguments[key.to_sym] = value
+          def self.deep_merge(key:, value:)
+            @arguments[key.to_sym].deep_merge(value)
           end
         end
       end
