@@ -33,6 +33,12 @@ module SecureKeys
                                       .to_boolean
     end
 
+    # Check if the SecureKeys XCFramework should be generated
+    # @return [Bool] true if the SecureKeys XCFramework should be generated
+    def generate_xcframework?
+      Core::Console::Argument::Handler.fetch(key: :generate)
+    end
+
     # Returns the Xcode project path
     # @return [String] Xcode project path
     def xcodeproj_path
@@ -44,6 +50,14 @@ module SecureKeys
     # @return [String] secure keys XCFramework path
     def secure_keys_xcframework_path
       Dir.glob("**/#{Swift::KEYS_DIRECTORY}/#{Swift::XCFRAMEWORK_DIRECTORY}").first
+    end
+
+    # Determine the secret keys source based on the environment
+    # @return [Object] secret keys source
+    def secret_keys_source
+      return SecureKeys::Core::Environment::CI.new if ci?
+
+      SecureKeys::Core::Environment::Keychain.new
     end
 
     # Returns the supported iOS platforms

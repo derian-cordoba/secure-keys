@@ -35,6 +35,7 @@ module SecureKeys
             end
 
             on('-d', '--delimiter DELIMITER', String, "The delimiter to use for the key access (default: \"#{Globals.default_key_delimiter}\")")
+            on('--[no-]generate', TrueClass, 'Generate the SecureKeys.xcframework')
             on('-i', '--identifier IDENTIFIER', String, "The identifier to use for the key access (default: \"#{Globals.default_key_access_identifier}\")")
             on('--verbose', TrueClass, 'Enable verbose mode (default: false)')
 

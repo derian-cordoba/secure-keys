@@ -10,6 +10,7 @@ module SecureKeys
           # Configure the default arguments
           @arguments = {
             delimiter: nil,
+            generate: true,
             identifier: nil,
             verbose: false,
           }
