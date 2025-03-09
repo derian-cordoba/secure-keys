@@ -36,7 +36,7 @@ module SecureKeys
     # Returns the Xcode project path
     # @return [String] Xcode project path
     def xcodeproj_path
-      Core::Console::Argument::Handler.fetch(key: :xcodeproj,
+      Core::Console::Argument::Handler.fetch(key: %i[xcframework xcodeproj],
                                              default: Dir.glob('**/*.xcodeproj').first)
     end
 
