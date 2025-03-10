@@ -10,6 +10,7 @@ module SecureKeys
 
             # Configure the default arguments
             @arguments = {
+              add: true,
               replace: false,
               target: nil,
               xcodeproj: nil,
