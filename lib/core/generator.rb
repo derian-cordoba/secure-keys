@@ -14,7 +14,7 @@ module SecureKeys
     class Generator
       private
 
-      attr_accessor :cipher, :secrets_source, :secret_keys, :mapped_keys
+      attr_accessor :cipher, :secrets_source, :secret_keys, :mapped_keys, :xcframework
 
       public
 
@@ -34,25 +34,35 @@ module SecureKeys
           encrypted_data = cipher.encrypt(value: secrets_source.fetch(key:))
           { name: key.camelize, **encrypted_data }
         end
+
+        # Configure the XCFramework
+        self.xcframework = Swift::XCFramework.new
       end
 
       def generate
-        pre_actions
+        if Globals.generate_xcframework?
+          pre_actions
+          generate_swift_package
+          write_keys
+          xcframework.generate
+        end
 
-        package = Swift::Package.new
-        package.generate
-
-        writer = Swift::Writer.new(mapped_keys:,
-                                   secure_key_bytes: cipher.secure_key_bytes)
-        writer.write
-
-        xcframework = Swift::XCFramework.new
-        xcframework.generate
-
-        post_actions
+        xcframework.configure_xcframework_to_xcodeproj
+        post_actions if Globals.generate_xcframework?
       end
 
       private
+
+      def generate_swift_package
+        package = Swift::Package.new
+        package.generate
+      end
+
+      def write_keys
+        writer = Swift::Writer.new(mapped_keys:,
+                                   secure_key_bytes: cipher.secure_key_bytes)
+        writer.write
+      end
 
       def pre_actions
         # Remove the keys directory

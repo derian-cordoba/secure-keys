@@ -22,12 +22,12 @@ module SecureKeys
           end
         end
         generate_key_xcframework
-        add_xcframework_to_xcodeproj_target_if_needed
       end
 
-      def replace_xcframework_in_xcodeproj
-        remove_xcframework_from_xcodeproj_target_if_needed
-        add_xcframework_to_xcodeproj_target_if_needed
+      # Configure the XCFramework to the Xcode project
+      def configure_xcframework_to_xcodeproj
+        remove_xcframework_from_xcodeproj_target_if_needed if Globals.replace_xcframework?
+        add_xcframework_to_xcodeproj_target_if_needed if Globals.replace_xcframework? || Globals.add_xcframework?
       end
 
       private
