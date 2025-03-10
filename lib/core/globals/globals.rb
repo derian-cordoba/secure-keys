@@ -39,6 +39,18 @@ module SecureKeys
       Core::Console::Argument::Handler.fetch(key: :generate)
     end
 
+    # Check if the SecureKeys XCFramework should be replaced
+    # @return [Bool] true if the SecureKeys XCFramework should be replaced
+    def replace_xcframework?
+      Core::Console::Argument::Handler.fetch(key: %i[xcframework replace])
+    end
+
+    # Check if the SecureKeys XCFramework should be added
+    # @return [Bool] true if the SecureKeys XCFramework should be added
+    def add_xcframework?
+      Core::Console::Argument::Handler.fetch(key: %i[xcframework add])
+    end
+
     # Returns the Xcode project path
     # @return [String] Xcode project path
     def xcodeproj_path
