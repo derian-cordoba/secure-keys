@@ -28,8 +28,8 @@ module SecureKeys
     # Check if the current instance is verbose
     # @return [Bool] true if the current instance is verbose
     def verbose?
-      Core::Console::Argument::Handler.fetch(key: :verbose,
-                                             default: ENV.fetch('VERBOSE', 'false'))
+      Core::Console::Argument::Handler.fetch(key: :verbose)
+                                      .to_s
                                       .to_boolean
     end
 
@@ -37,18 +37,24 @@ module SecureKeys
     # @return [Bool] true if the SecureKeys XCFramework should be generated
     def generate_xcframework?
       Core::Console::Argument::Handler.fetch(key: :generate)
+                                      .to_s
+                                      .to_boolean
     end
 
     # Check if the SecureKeys XCFramework should be replaced
     # @return [Bool] true if the SecureKeys XCFramework should be replaced
     def replace_xcframework?
       Core::Console::Argument::Handler.fetch(key: %i[xcframework replace])
+                                      .to_s
+                                      .to_boolean
     end
 
     # Check if the SecureKeys XCFramework should be added
     # @return [Bool] true if the SecureKeys XCFramework should be added
     def add_xcframework?
       Core::Console::Argument::Handler.fetch(key: %i[xcframework add])
+                                      .to_s
+                                      .to_boolean
     end
 
     # Returns the Xcode project path
