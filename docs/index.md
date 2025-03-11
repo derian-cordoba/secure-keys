@@ -133,13 +133,13 @@ secure-keys --help
 
 Usage: secure-keys [--options]
 
-    -h, --help                                  Use the provided commands to select the params
-        --add-xcframework-to-target TARGET      Add the xcframework to the target
-    -d, --delimiter DELIMITER                   The delimiter to use for the key access (default: ",")
-    -i, --identifier IDENTIFIER                 The identifier to use for the key access (default: "secure-keys")
-        --verbose                               Enable verbose mode (default: false)
-    -v, --version                               Show the secure-keys version
-    -x, --xcodeproj XCODEPROJ                   The Xcode project path (default: the first found Xcode project)
+    -h, --help                       Use the provided commands to select the params
+        --xcframework                Add the xcframework to the target
+    -d, --delimiter DELIMITER        The delimiter to use for the key access (default: ",")
+        --[no-]generate              Generate the SecureKeys.xcframework
+    -i, --identifier IDENTIFIER      The identifier to use for the key access (default: "secure-keys")
+        --verbose                    Enable verbose mode (default: false)
+    -v, --version                    Show the secure-keys version
 ```
 
 To avoid defining the `SECURE_KEYS_IDENTIFIER` and `SECURE_KEYS_DELIMITER` env variables, you can use the `--identifier` and `--delimiter` options.
@@ -158,22 +158,68 @@ secure-keys -i "your-keychain-or-env-variable-identifier" -d "|"
 
 #### Automatically
 
-From the `secure-keys` command, you can use the `--add-xcframework-to-target` option to add the `SecureKeys.xcframework` to the iOS project.
+> [!IMPORTANT]
+> You can see more information about the command using the `--help` option.
 
 ```bash
-secure-keys --add-xcframework-to-target "YourTargetName"
+secure-keys --xcframework --help
+
+# Output
+Usage: secure-keys --xcframework [--options]
+
+    -h, --help                       Use the provided commands to select the params
+        --[no-]add                   Add the SecureKeys XCFramework to the Xcode project (default: true)
+    -t, --target TARGET              The target to add the xcframework
+    -r, --replace                    Replace the existing xcframework in the Xcode project (default: false)
+    -x, --xcodeproj XCODEPROJ        The Xcode project path (default: the first found Xcode project)
+```
+
+From the `secure-keys` command, you can use the `--xcframework` option to add the `SecureKeys.xcframework` to the iOS project.
+
+```bash
+secure-keys --xcframework --target "YourTargetName" --add
+```
+
+If you want to add the `SecureKeys.xcframework` to an iOS that already contains the `SecureKeys` source code, you can use the `--replace` option.
+
+```bash
+secure-keys --xcframework --target "YourTargetName" --replace
+```
+
+> [!IMPORTANT]
+> If you don't need generate the `SecureKeys.xcframework` every time, you can use the `--no-generate` option.
+
+```bash
+secure-keys --no-generate --xcframework --target "YourTargetName"
 ```
 
 Also, you can specify your Xcode project path using the `--xcodeproj` option.
 
 ```bash
-secure-keys --add-xcframework-to-target "YourTargetName" --xcodeproj "/path/to/your/project.xcodeproj"
+secure-keys --xcframework --target "YourTargetName" --xcodeproj "/path/to/your/project.xcodeproj"
 ```
 
 > [!IMPORTANT]
 > By default, the xcodeproj path would be the first found Xcode project.
 
-This command will generate the `SecureKeys.xcframework` and add it to the iOS project.
+If you don't want to use the CLI options, you can configure some env variable to interact with the `secure-keys` command.
+
+```bash
+# e.g (Large version)
+export SECURE_KEYS_XCFRAMEWORK_TARGET="YourTargetName"
+export SECURE_KEYS_XCFRAMEWORK_ADD=true
+export SECURE_KEYS_XCFRAMEWORK_REPLACE=true
+export SECURE_KEYS_XCFRAMEWORK_XCODEPROJ="/path/to/your/project.xcodeproj"
+
+# e.g (Short version)
+export XCFRAMEWORK_TARGET="YourTargetName"
+export XCFRAMEWORK_ADD=true
+export XCFRAMEWORK_REPLACE=true
+export XCFRAMEWORK_XCODEPROJ="/path/to/your/project.xcodeproj"
+
+# Run the command
+secure-keys --xcframework
+```
 
 #### Manually
 

@@ -25,7 +25,8 @@ Later, you can generate the `SecureKeys` xcframework by running the following co
 ```bash
 # Running in the root project directory
 secure-keys \
-  --add-xcframework-to-target SwiftUIApp \
+  --xcframework \
+  --target "SwiftUIApp" \
   --xcodeproj "fixtures/SwiftUIApp+Backend/client/SwiftUIApp.xcodeproj"
 ```
 
