@@ -9,6 +9,7 @@ module SecureKeys
           def self.reset
             @arguments = {
               delimiter: nil,
+              generate: false,
               identifier: nil,
               verbose: false,
             }
