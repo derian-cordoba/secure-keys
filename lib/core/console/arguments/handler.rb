@@ -18,12 +18,14 @@ module SecureKeys
           # Fetch the argument value by key
           # from CLI arguments or environment variables
           #
-          # @param key [Symbol] the argument key
+          # @param key [Array|Symbol] the argument key
           # @param default [String] the default value
           #
           # @return [String] the argument value
           def self.fetch(key:, default: nil)
-            @arguments.dig(*Array(key).map(&:to_sym)) || ENV.fetch("secure_keys_#{key}".upcase, nil) || default
+            keys = Array(key).map(&:to_sym)
+            joined_keys = keys.join('_').upcase
+            @arguments.dig(*keys) || ENV["SECURE_KEYS_#{joined_keys}"] || ENV[joined_keys] || default
           end
 
           # Set the value of the key
@@ -37,7 +39,8 @@ module SecureKeys
           # @param key [Symbol] the argument key
           # @param value [String] the argument value
           def self.deep_merge(key:, value:)
-            @arguments[key.to_sym].deep_merge(value)
+            @arguments[key.to_sym] ||= {} # Initialize the key if it doesn't exist
+            @arguments[key.to_sym].merge!(value)
           end
         end
       end
