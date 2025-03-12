@@ -187,7 +187,7 @@ secure-keys --xcframework --target "YourTargetName" --replace
 ```
 
 > [!IMPORTANT]
-> If you don't need generate the `SecureKeys.xcframework` every time, you can use the `--no-generate` option.
+> If you don't need to generate the `SecureKeys.xcframework` every time, you can use the `--no-generate` option.
 
 ```bash
 secure-keys --no-generate --xcframework --target "YourTargetName"
