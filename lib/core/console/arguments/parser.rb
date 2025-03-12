@@ -3,6 +3,7 @@
 require 'optparse'
 require_relative '../../globals/globals'
 require_relative './handler'
+require_relative './xcframework/parser'
 
 module SecureKeys
   module Core
@@ -16,7 +17,8 @@ module SecureKeys
 
             # Configure the arguement parser
             configure!
-            parse!(into: Handler.arguments)
+            order!(into: Handler.arguments)
+            configure_sub_arguments
           end
 
           private
@@ -28,10 +30,12 @@ module SecureKeys
               exit(0)
             end
 
-            on('--add-xcframework-to-target TARGET', String, 'Add the xcframework to the target') do |target|
-              Handler.arguments[:target] = target
+            on('--xcframework', 'Add the xcframework to the target') do
+              XCFramework::Parser.new
             end
+
             on('-d', '--delimiter DELIMITER', String, "The delimiter to use for the key access (default: \"#{Globals.default_key_delimiter}\")")
+            on('--[no-]generate', TrueClass, 'Generate the SecureKeys.xcframework')
             on('-i', '--identifier IDENTIFIER', String, "The identifier to use for the key access (default: \"#{Globals.default_key_access_identifier}\")")
             on('--verbose', TrueClass, 'Enable verbose mode (default: false)')
 
@@ -39,7 +43,11 @@ module SecureKeys
               puts "secure-keys version: v#{SecureKeys::VERSION}"
               exit(0)
             end
-            on('-x', '--xcodeproj XCODEPROJ', String, 'The Xcode project path (default: the first found Xcode project)')
+          end
+
+          # Configure the sub arguments
+          def configure_sub_arguments
+            Handler.set(key: :xcframework, value: XCFramework::Handler.arguments)
           end
         end
       end

@@ -28,15 +28,39 @@ module SecureKeys
     # Check if the current instance is verbose
     # @return [Bool] true if the current instance is verbose
     def verbose?
-      Core::Console::Argument::Handler.fetch(key: :verbose,
-                                             default: ENV.fetch('VERBOSE', 'false'))
+      Core::Console::Argument::Handler.fetch(key: :verbose)
+                                      .to_s
+                                      .to_boolean
+    end
+
+    # Check if the SecureKeys XCFramework should be generated
+    # @return [Bool] true if the SecureKeys XCFramework should be generated
+    def generate_xcframework?
+      Core::Console::Argument::Handler.fetch(key: :generate)
+                                      .to_s
+                                      .to_boolean
+    end
+
+    # Check if the SecureKeys XCFramework should be replaced
+    # @return [Bool] true if the SecureKeys XCFramework should be replaced
+    def replace_xcframework?
+      Core::Console::Argument::Handler.fetch(key: %i[xcframework replace])
+                                      .to_s
+                                      .to_boolean
+    end
+
+    # Check if the SecureKeys XCFramework should be added
+    # @return [Bool] true if the SecureKeys XCFramework should be added
+    def add_xcframework?
+      Core::Console::Argument::Handler.fetch(key: %i[xcframework add])
+                                      .to_s
                                       .to_boolean
     end
 
     # Returns the Xcode project path
     # @return [String] Xcode project path
     def xcodeproj_path
-      Core::Console::Argument::Handler.fetch(key: :xcodeproj,
+      Core::Console::Argument::Handler.fetch(key: %i[xcframework xcodeproj],
                                              default: Dir.glob('**/*.xcodeproj').first)
     end
 
@@ -44,6 +68,14 @@ module SecureKeys
     # @return [String] secure keys XCFramework path
     def secure_keys_xcframework_path
       Dir.glob("**/#{Swift::KEYS_DIRECTORY}/#{Swift::XCFRAMEWORK_DIRECTORY}").first
+    end
+
+    # Determine the secret keys source based on the environment
+    # @return [Object] secret keys source
+    def secret_keys_source
+      return SecureKeys::Core::Environment::CI.new if ci?
+
+      SecureKeys::Core::Environment::Keychain.new
     end
 
     # Returns the supported iOS platforms

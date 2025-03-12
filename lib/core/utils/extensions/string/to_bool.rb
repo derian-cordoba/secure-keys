@@ -3,8 +3,10 @@ module BooleanCasting
   # Casts a string to a boolean
   # @return [Boolean] the boolean value of the string
   def to_bool
-    return true if self == true || self =~ /^(true|t|yes|y|1)$/i
-    return false if self == false || empty? || self =~ /^(false|f|no|n|0)$/i
+    return self if [true, false].include?(self)
+    return false if nil? || empty?
+    return false if self =~ /^(false|f|no|n|0)$/i
+    return true if self =~ /^(true|t|yes|y|1)$/i
 
     # If the string is not a boolean, return false by default
     false

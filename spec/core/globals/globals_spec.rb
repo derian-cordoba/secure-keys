@@ -7,13 +7,9 @@ describe(SecureKeys::Globals) do
     SecureKeys::Core::Console::Argument::Handler.reset
 
     # Reset the environment variables
-    ENV['SECURE_KEYS_IDENTIFIER'] = nil
-    ENV['SECURE_KEYS_DELIMITER'] = nil
-    ENV['SECURE_KEYS_VERBOSE'] = nil
-    ENV['VERBOSE'] = nil
-    ENV['CI'] = nil
-    ENV['CIRCLECI'] = nil
-    ENV['GITHUB_ACTIONS'] = nil
+    %w[SECURE_KEYS_IDENTIFIER SECURE_KEYS_DELIMITER SECURE_KEYS_VERBOSE SECURE_KEYS_XCFRAMEWORK_REPLACE XCFRAMEWORK_REPLACE SECURE_KEYS_XCFRAMEWORK_ADD XCFRAMEWORK_ADD VERBOSE CI CIRCLECI GITHUB_ACTIONS SECURE_KEYS_GENERATE GENERATE].each do |key|
+      ENV.delete(key)
+    end
   end
 
   it('should be CI actived from environment') do
@@ -231,5 +227,209 @@ describe(SecureKeys::Globals) do
 
     # then
     expect(SecureKeys::Globals.verbose?).to(eq(expected_verbose))
+  end
+
+  it('should be enabled the replace xcframework from argument handler') do
+    # given
+    expected_replace = true
+
+    # when
+    SecureKeys::Core::Console::Argument::Handler.deep_merge(key: :xcframework,
+                                                            value: { replace: expected_replace })
+
+    # then
+    expect(SecureKeys::Globals.replace_xcframework?).to(eq(expected_replace))
+  end
+
+  it('should be enabled the replace xcframework from env variable (SECURE_KEYS_XCFRAMEWORK_REPLACE)') do
+    # given
+    expected_replace = true
+
+    # when
+    ENV['SECURE_KEYS_XCFRAMEWORK_REPLACE'] = expected_replace.to_s
+
+    # then
+    expect(SecureKeys::Globals.replace_xcframework?).to(eq(expected_replace))
+  end
+
+  it('should be enabled the replace xcframework from env variable (XCFRAMEWORK_REPLACE)') do
+    # given
+    expected_replace = true
+
+    # when
+    ENV['XCFRAMEWORK_REPLACE'] = expected_replace.to_s
+
+    # then
+    expect(SecureKeys::Globals.replace_xcframework?).to(eq(expected_replace))
+  end
+
+  it('should be disabled the replace xcframework from argument handler') do
+    # given
+    expected_replace = false
+
+    # when
+    SecureKeys::Core::Console::Argument::Handler.deep_merge(key: :xcframework,
+                                                            value: { replace: expected_replace })
+
+    # then
+    expect(SecureKeys::Globals.replace_xcframework?).to(eq(expected_replace))
+  end
+
+  it('should be disabled the replace xcframework from env variable (SECURE_KEYS_XCFRAMEWORK_REPLACE)') do
+    # given
+    expected_replace = false
+
+    # when
+    ENV['SECURE_KEYS_XCFRAMEWORK_REPLACE'] = expected_replace.to_s
+
+    # then
+    expect(SecureKeys::Globals.replace_xcframework?).to(eq(expected_replace))
+  end
+
+  it('should be disabled the replace xcframework from env variable (XCFRAMEWORK_REPLACE)') do
+    # given
+    expected_replace = false
+
+    # when
+    ENV['XCFRAMEWORK_REPLACE'] = expected_replace.to_s
+
+    # then
+    expect(SecureKeys::Globals.replace_xcframework?).to(eq(expected_replace))
+  end
+
+  it('should be enabled the add xcframework from argument handler') do
+    # given
+    expected_add = true
+
+    # when
+    SecureKeys::Core::Console::Argument::Handler.deep_merge(key: :xcframework,
+                                                            value: { add: expected_add })
+
+    # then
+    expect(SecureKeys::Globals.add_xcframework?).to(eq(expected_add))
+  end
+
+  it('should be enabled the add xcframework from env variable (SECURE_KEYS_XCFRAMEWORK_ADD)') do
+    # given
+    expected_add = true
+
+    # when
+    ENV['SECURE_KEYS_XCFRAMEWORK_ADD'] = expected_add.to_s
+
+    # then
+    expect(SecureKeys::Globals.add_xcframework?).to(eq(expected_add))
+  end
+
+  it('should be enabled the add xcframework from env variable (XCFRAMEWORK_ADD)') do
+    # given
+    expected_add = true
+
+    # when
+    ENV['XCFRAMEWORK_ADD'] = expected_add.to_s
+
+    # then
+    expect(SecureKeys::Globals.add_xcframework?).to(eq(expected_add))
+  end
+
+  it('should be disabled the add xcframework from argument handler') do
+    # given
+    expected_add = false
+
+    # when
+    SecureKeys::Core::Console::Argument::Handler.deep_merge(key: :xcframework,
+                                                            value: { add: expected_add })
+
+    # then
+    expect(SecureKeys::Globals.add_xcframework?).to(eq(expected_add))
+  end
+
+  it('should be disabled the add xcframework from env variable (SECURE_KEYS_XCFRAMEWORK_ADD)') do
+    # given
+    expected_add = false
+
+    # when
+    ENV['SECURE_KEYS_XCFRAMEWORK_ADD'] = expected_add.to_s
+
+    # then
+    expect(SecureKeys::Globals.add_xcframework?).to(eq(expected_add))
+  end
+
+  it('should be disabled the add xcframework from env variable (XCFRAMEWORK_ADD)') do
+    # given
+    expected_add = false
+
+    # when
+    ENV['XCFRAMEWORK_ADD'] = expected_add.to_s
+
+    # then
+    expect(SecureKeys::Globals.add_xcframework?).to(eq(expected_add))
+  end
+
+  it('should be enabled the generate xcframework from argument handler') do
+    # given
+    expected_generate = true
+
+    # when
+    SecureKeys::Core::Console::Argument::Handler.set(key: :generate,
+                                                     value: expected_generate)
+
+    # then
+    expect(SecureKeys::Globals.generate_xcframework?).to(eq(expected_generate))
+  end
+
+  it('should be enabled the generate xcframework from env variable (SECURE_KEYS_GENERATE)') do
+    # given
+    expected_generate = true
+
+    # when
+    ENV['SECURE_KEYS_GENERATE'] = expected_generate.to_s
+
+    # then
+    expect(SecureKeys::Globals.generate_xcframework?).to(eq(expected_generate))
+  end
+
+  it('should be enabled the generate xcframework from env variable (GENERATE)') do
+    # given
+    expected_generate = true
+
+    # when
+    ENV['GENERATE'] = expected_generate.to_s
+
+    # then
+    expect(SecureKeys::Globals.generate_xcframework?).to(eq(expected_generate))
+  end
+
+  it('should be disabled the generate xcframework from argument handler') do
+    # given
+    expected_generate = false
+
+    # when
+    SecureKeys::Core::Console::Argument::Handler.set(key: :generate,
+                                                     value: expected_generate)
+
+    # then
+    expect(SecureKeys::Globals.generate_xcframework?).to(eq(expected_generate))
+  end
+
+  it('should be disabled the generate xcframework from env variable (SECURE_KEYS_GENERATE)') do
+    # given
+    expected_generate = false
+
+    # when
+    ENV['SECURE_KEYS_GENERATE'] = expected_generate.to_s
+
+    # then
+    expect(SecureKeys::Globals.generate_xcframework?).to(eq(expected_generate))
+  end
+
+  it('should be disabled the generate xcframework from env variable (GENERATE)') do
+    # given
+    expected_generate = false
+
+    # when
+    ENV['GENERATE'] = expected_generate.to_s
+
+    # then
+    expect(SecureKeys::Globals.generate_xcframework?).to(eq(expected_generate))
   end
 end

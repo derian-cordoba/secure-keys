@@ -8,7 +8,7 @@ describe(SecureKeys::Swift::Xcodeproj) do
     SecureKeys::Core::Console::Argument::Handler.reset
 
     # reset the env variable
-    ENV['SECURE_KEYS_XCODEPROJ'] = nil
+    ENV['SECURE_KEYS_XCFRAMEWORK_XCODEPROJ'] = nil
   end
 
   it('should find the xcodeproj from env variables') do
@@ -18,7 +18,7 @@ describe(SecureKeys::Swift::Xcodeproj) do
 
     # when
     # define the env variable
-    ENV['SECURE_KEYS_XCODEPROJ'] = expected_xcodeproj_path
+    ENV['SECURE_KEYS_XCFRAMEWORK_XCODEPROJ'] = expected_xcodeproj_path
     xcodeproj = SecureKeys::Swift::Xcodeproj.xcodeproj
 
     # then
@@ -33,7 +33,7 @@ describe(SecureKeys::Swift::Xcodeproj) do
 
     # when
     # define the argument handler
-    SecureKeys::Core::Console::Argument::Handler.set(key: :xcodeproj, value: expected_xcodeproj_path)
+    SecureKeys::Core::Console::Argument::Handler.deep_merge(key: :xcframework, value: { xcodeproj: expected_xcodeproj_path })
     xcodeproj = SecureKeys::Swift::Xcodeproj.xcodeproj
 
     # then
@@ -48,7 +48,7 @@ describe(SecureKeys::Swift::Xcodeproj) do
 
     # when
     # define the env variable
-    ENV['SECURE_KEYS_XCODEPROJ'] = expected_xcodeproj_path
+    ENV['SECURE_KEYS_XCFRAMEWORK_XCODEPROJ'] = expected_xcodeproj_path
     xcodeproj = SecureKeys::Swift::Xcodeproj.xcodeproj
     xcodeproj_target = SecureKeys::Swift::Xcodeproj.xcodeproj_target_by_target_name(xcodeproj:,
                                                                                     target_name: expected_target_name)
@@ -66,7 +66,7 @@ describe(SecureKeys::Swift::Xcodeproj) do
 
     # when
     # define the env variable
-    ENV['SECURE_KEYS_XCODEPROJ'] = expected_xcodeproj_path
+    ENV['SECURE_KEYS_XCFRAMEWORK_XCODEPROJ'] = expected_xcodeproj_path
     xcodeproj = SecureKeys::Swift::Xcodeproj.xcodeproj
 
     # then

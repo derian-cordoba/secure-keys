@@ -22,7 +22,12 @@ module SecureKeys
           end
         end
         generate_key_xcframework
-        add_xcframework_to_xcodeproj_target_if_needed
+      end
+
+      # Configure the XCFramework to the Xcode project
+      def configure_xcframework_to_xcodeproj
+        remove_xcframework_from_xcodeproj_target_if_needed if Globals.replace_xcframework?
+        add_xcframework_to_xcodeproj_target_if_needed if Globals.replace_xcframework? || Globals.add_xcframework?
       end
 
       private
@@ -85,7 +90,7 @@ module SecureKeys
       # Add the XCFramework to the Xcode project target if needed
       # @param target_name [String] The target name to add the XCFramework
       def add_xcframework_to_xcodeproj_target_if_needed(target_name: nil)
-        target_name ||= Core::Console::Argument::Handler.fetch(key: :target)
+        target_name ||= Core::Console::Argument::Handler.fetch(key: %i[xcframework target])
         return if target_name.to_s.empty?
 
         Core::Console::Logger.important(message: "Adding the XCFramework to the target '#{target_name}'")
@@ -96,6 +101,21 @@ module SecureKeys
 
         xcodeproj.save
         Core::Console::Logger.success(message: "The XCFramework was added to the target '#{target_name}'")
+      end
+
+      # Remove the XCFramework from the Xcode project target if needed
+      # @param target_name [String] The target name to remove the XCFramework
+      def remove_xcframework_from_xcodeproj_target_if_needed(target_name: nil)
+        target_name ||= Core::Console::Argument::Handler.fetch(key: %i[xcframework target])
+        return if target_name.to_s.empty?
+
+        Core::Console::Logger.important(message: "Removing the XCFramework from the target '#{target_name}'")
+        xcodeproj = Xcodeproj.xcodeproj
+        xcodeproj_target = Xcodeproj.xcodeproj_target_by_target_name(xcodeproj:, target_name:)
+        Xcodeproj.remove_xcframework(xcodeproj:, xcodeproj_target:, xcframework_path: Xcodeproj.xcframework_relative_path)
+
+        xcodeproj.save
+        Core::Console::Logger.success(message: "The XCFramework was removed from the target '#{target_name}'")
       end
     end
   end

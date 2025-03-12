@@ -5,4 +5,4 @@ require 'dotenv/load'
 require_relative '../lib/keys'
 
 # Generate the keys
-SecureKeys::Generator.new.setup
+SecureKeys.run
