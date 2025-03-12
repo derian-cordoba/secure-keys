@@ -1,0 +1,78 @@
+name: Bump version on release branches
+
+concurrency:
+  group: release-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  create:
+
+  # Allow workflow_dispatch to run the workflow manually if needed
+  workflow_dispatch:
+    inputs:
+      use-bundle-cache:
+        description: Use bundle cache for dependencies
+        required: true
+        type: boolean
+
+jobs:
+  bump-version:
+    if: contains(github.ref, 'refs/heads/release/')
+    runs-on: ${{ vars.RUNS_ON || 'macos-latest' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GH_PAT }}
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: ${{ github.event_name == 'workflow_dispatch' && (inputs.use-bundle-cache || false) || vars.USE_BUNDLE_CACHE == 'true' }}
+
+      - name: Install dependencies
+        run: |
+          bundle install
+
+      - name: Get release version from branch
+        id: release
+        run: |
+          version=$(echo "${{ github.ref }}" | sed -E 's|refs/heads/release/v([0-9]+\.[0-9]+\.[0-9]+)|\1|')
+
+          if [ -z "$version" ]; then
+            echo "❌ No version found in branch name"
+            exit 1
+          fi
+
+          echo "version=$version" >> $GITHUB_OUTPUT
+
+      - name: Check if version is already bumped
+        if: steps.release.outputs.version != ''
+        env:
+          VERSION: ${{ steps.release.outputs.version }}
+        run: |
+          current_version="$(bundle exec bump current)"
+
+          if [[ "$current_version" == "$VERSION" ]]; then
+            echo "✅ Version is already bumped"
+            exit 78
+          fi
+
+      - name: Bump version
+        if: steps.release.outputs.version != ''
+        env:
+          VERSION: ${{ steps.release.outputs.version }}
+        run: |
+          bundle exec bump set $VERSION --no-commit --no-bundle
+          bundle config set frozen false
+          bundle install
+          bundle config set frozen true
+
+      - name: Commit and Push changes
+        if: steps.release.outputs.version != ''
+        env:
+          VERSION: ${{ steps.release.outputs.version }}
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git add lib/version.rb README.md Gemfile.lock
+          git commit -m "feat(version): Bumped version to v$VERSION"
+          git push
