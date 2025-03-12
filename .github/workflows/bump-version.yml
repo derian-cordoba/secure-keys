@@ -61,7 +61,7 @@ jobs:
         env:
           VERSION: ${{ steps.release.outputs.version }}
         run: |
-          bundle exec bump set $VERSION --no-commit --no-bundle
+          bundle exec bump set $VERSION --no-commit --no-bundle --replace-in README.md
           bundle config set frozen false
           bundle install
           bundle config set frozen true
