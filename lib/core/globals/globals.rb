@@ -16,7 +16,7 @@ module SecureKeys
       # Check for Jenkins, Travis CI, ... environment variables
       %w[JENKINS_HOME JENKINS_URL TRAVIS CI APPCENTER_BUILD_ID TEAMCITY_VERSION GO_PIPELINE_NAME bamboo_buildKey GITLAB_CI XCS TF_BUILD GITHUB_ACTION GITHUB_ACTIONS BITRISE_IO BUDDY CODEBUILD_BUILD_ARN].any? do |current|
         ENV[current].to_s.to_boolean
-      end || Core::Console::Argument::Handler.fetch(key: :ci)
+      end || Core::Console::Argument::Handler.fetch(key: :ci).to_s.to_boolean
     end
 
     # Check if the current build is running on CircleCI

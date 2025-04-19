@@ -65,6 +65,19 @@ describe(SecureKeys::Globals) do
     end
   end
 
+  it('should be CI actived from argument handler') do
+    # given
+    expected_ci = true
+
+    # when
+    SecureKeys::Core::Console::Argument::Handler.set(key: :ci,
+                                                     value: expected_ci)
+
+    # then
+    expect(SecureKeys::Globals.ci?).to(eq(expected_ci))
+    expect(SecureKeys::Globals.ci?).to(eq(expected_ci.to_s.to_boolean))
+  end
+
   it('should be the default access key value') do
     # given
     expected_access_key = SecureKeys::Globals.default_key_access_identifier
