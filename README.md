@@ -138,12 +138,13 @@ secure-keys --help
 Usage: secure-keys [--options]
 
     -h, --help                       Use the provided commands to select the params
-        --xcframework                Add the xcframework to the target
+        --ci                         Enable CI mode (default: false)
     -d, --delimiter DELIMITER        The delimiter to use for the key access (default: ",")
         --[no-]generate              Generate the SecureKeys.xcframework
     -i, --identifier IDENTIFIER      The identifier to use for the key access (default: "secure-keys")
         --verbose                    Enable verbose mode (default: false)
     -v, --version                    Show the secure-keys version
+        --xcframework                Add the xcframework to the target
 ```
 
 To avoid defining the `SECURE_KEYS_IDENTIFIER` and `SECURE_KEYS_DELIMITER` env variables, you can use the `--identifier` and `--delimiter` options.
