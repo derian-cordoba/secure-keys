@@ -12,7 +12,7 @@ describe(SecureKeys::Globals) do
     end
   end
 
-  it('should be CI actived from environment') do
+  it('should be CI activated from environment') do
     # given
     expected_ci = true
 
@@ -37,7 +37,7 @@ describe(SecureKeys::Globals) do
     expect(SecureKeys::Globals.ci?).to(eq(expected_ci.to_s.to_boolean))
   end
 
-  it('should be CI actived from environment (CIRCLECI)') do
+  it('should be CI activated from environment (CIRCLECI)') do
     # given
     expected_ci = true
 
@@ -51,7 +51,7 @@ describe(SecureKeys::Globals) do
     expect(SecureKeys::Globals.circle_ci?).to(eq(expected_ci.to_s.to_boolean))
   end
 
-  it('should be actived from each CI environment variable') do
+  it('should be activated from each CI environment variable') do
     # given
     expected_ci = true
 
