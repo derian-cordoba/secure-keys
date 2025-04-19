@@ -15,7 +15,7 @@ module SecureKeys
               super('Usage: secure-keys --xcframework [--options]')
               separator('')
 
-              # Configure the arguement parser
+              # Configure the argument parser
               configure!
               order!(into: Handler.arguments)
             end
