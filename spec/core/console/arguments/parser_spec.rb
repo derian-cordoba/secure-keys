@@ -21,12 +21,13 @@ describe(SecureKeys::Core::Console::Argument::Parser) do
       'Usage: secure-keys [--options]',
       '',
       '-h, --help                       Use the provided commands to select the params',
-      '--xcframework                Add the xcframework to the target',
+      '--ci                         Enable CI mode (default: false)',
       '-d, --delimiter DELIMITER        The delimiter to use for the key access (default: ",")',
       '--[no-]generate              Generate the SecureKeys.xcframework',
       '-i, --identifier IDENTIFIER      The identifier to use for the key access (default: "secure-keys")',
       '--verbose                    Enable verbose mode (default: false)',
-      '-v, --version                    Show the secure-keys version'
+      '-v, --version                    Show the secure-keys version',
+      '--xcframework                Add the xcframework to the target'
     ]
 
     # when

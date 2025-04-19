@@ -8,6 +8,7 @@ module SecureKeys
           # Reset the arguments to initial values
           def self.reset
             @arguments = {
+              ci: false,
               delimiter: nil,
               generate: false,
               identifier: nil,

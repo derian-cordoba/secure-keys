@@ -29,19 +29,17 @@ module SecureKeys
               puts self
               exit(0)
             end
-
-            on('--xcframework', 'Add the xcframework to the target') do
-              XCFramework::Parser.new
-            end
-
+            on('--ci', TrueClass, 'Enable CI mode (default: false)')
             on('-d', '--delimiter DELIMITER', String, "The delimiter to use for the key access (default: \"#{Globals.default_key_delimiter}\")")
             on('--[no-]generate', TrueClass, 'Generate the SecureKeys.xcframework')
             on('-i', '--identifier IDENTIFIER', String, "The identifier to use for the key access (default: \"#{Globals.default_key_access_identifier}\")")
             on('--verbose', TrueClass, 'Enable verbose mode (default: false)')
-
             on('-v', '--version', 'Show the secure-keys version') do
               puts "secure-keys version: v#{SecureKeys::VERSION}"
               exit(0)
+            end
+            on('--xcframework', 'Add the xcframework to the target') do
+              XCFramework::Parser.new
             end
           end
 
