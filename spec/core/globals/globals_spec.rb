@@ -65,7 +65,7 @@ describe(SecureKeys::Globals) do
     end
   end
 
-  it('should be CI actived from argument handler') do
+  it('should be CI activated from argument handler') do
     # given
     expected_ci = true
 
