@@ -1,0 +1,154 @@
+language: ruby
+matrix:
+  fast_finish: true
+  include:
+    - os: linux
+      dist: xenial
+      rvm: 3.4-preview2
+    - os: linux
+      dist: xenial
+      rvm: 3.3
+    - os: linux
+      dist: xenial
+      rvm: 3.2
+    - os: linux
+      dist: xenial
+      rvm: 3.1
+    - os: linux
+      dist: xenial
+      rvm: 3.0
+    - os: linux
+      dist: xenial
+      rvm: 2.7
+    - os: linux
+      dist: xenial
+      rvm: 2.6
+    - os: linux
+      dist: xenial
+      rvm: 2.5
+    - os: linux
+      dist: xenial
+      rvm: 2.4
+    - os: linux
+      dist: xenial
+      rvm: 2.3
+    - os: linux
+      dist: xenial
+      rvm: 2.2
+    - os: linux
+      dist: xenial
+      rvm: 2.1
+    - os: linux
+      dist: bionic
+      rvm: 3.4-preview2
+    - os: linux
+      dist: bionic
+      rvm: 3.3
+    - os: linux
+      dist: bionic
+      rvm: 3.2
+    - os: linux
+      dist: bionic
+      rvm: 3.1
+    - os: linux
+      dist: bionic
+      rvm: 3.0
+    - os: linux
+      dist: bionic
+      rvm: 2.7
+    - os: linux
+      dist: bionic
+      rvm: 2.6
+    - os: linux
+      dist: bionic
+      rvm: 2.5
+    - os: linux
+      dist: bionic
+      rvm: 2.4
+    - os: linux
+      dist: bionic
+      rvm: 2.3
+    - os: linux
+      dist: focal
+      rvm: 3.4-preview2
+    - os: linux
+      dist: focal
+      rvm: 3.3
+    - os: linux
+      dist: focal
+      rvm: 3.2
+    - os: linux
+      dist: focal
+      rvm: 3.1
+    - os: linux
+      dist: focal
+      rvm: 3.0
+    - os: linux
+      dist: focal
+      rvm: 2.7
+    - os: linux
+      dist: focal
+      rvm: 2.6
+    - os: linux
+      dist: focal
+      rvm: 2.5
+    - os: linux
+      dist: focal
+      rvm: 2.4
+    - os: osx
+      osx_image: xcode11.3
+      rvm: 3.4-preview2
+    - os: osx
+      osx_image: xcode11.3
+      rvm: 3.3
+    - os: osx
+      osx_image: xcode11.3
+      rvm: 3.2
+    - os: osx
+      osx_image: xcode11.3
+      rvm: 3.1
+    - os: osx
+      osx_image: xcode11.3
+      rvm: 3.0
+    - os: osx
+      osx_image: xcode11.3
+      rvm: 2.7
+    - os: osx
+      osx_image: xcode11.3
+      rvm: 2.6
+    - os: osx
+      osx_image: xcode11.3
+      rvm: 2.5
+    - os: osx
+      osx_image: xcode11.3
+      rvm: 2.4
+    - os: osx
+      osx_image: xcode12.2
+      rvm: 3.4-preview2
+    - os: osx
+      osx_image: xcode12.2
+      rvm: 3.3
+    - os: osx
+      osx_image: xcode12.2
+      rvm: 3.2
+    - os: osx
+      osx_image: xcode12.2
+      rvm: 3.1
+    - os: osx
+      osx_image: xcode12.2
+      rvm: 3.0
+    - os: osx
+      osx_image: xcode12.2
+      rvm: 2.7
+    - os: osx
+      osx_image: xcode12.2
+      rvm: 2.6
+    - os: osx
+      osx_image: xcode12.2
+      rvm: 2.5
+    - os: osx
+      osx_image: xcode12.2
+      rvm: 2.4
+    - os: osx
+      osx_image: xcode12.2
+      rvm: ruby-head

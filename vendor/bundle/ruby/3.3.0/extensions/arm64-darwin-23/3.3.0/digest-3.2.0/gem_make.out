@@ -1,0 +1,20 @@
+current directory: /Users/runner/work/secure-keys/secure-keys/vendor/bundle/ruby/3.3.0/gems/digest-3.2.0/ext/digest/sha2
+/Users/runner/hostedtoolcache/Ruby/3.3.6/arm64/bin/ruby extconf.rb
+checking for CommonCrypto/CommonDigest.h... yes
+checking for sys/cdefs.h... yes
+creating Makefile
+
+current directory: /Users/runner/work/secure-keys/secure-keys/vendor/bundle/ruby/3.3.0/gems/digest-3.2.0/ext/digest/sha2
+make DESTDIR\= sitearchdir\=./.gem.20250504-2275-x8ll8p sitelibdir\=./.gem.20250504-2275-x8ll8p clean
+
+current directory: /Users/runner/work/secure-keys/secure-keys/vendor/bundle/ruby/3.3.0/gems/digest-3.2.0/ext/digest/sha2
+make DESTDIR\= sitearchdir\=./.gem.20250504-2275-x8ll8p sitelibdir\=./.gem.20250504-2275-x8ll8p
+compiling sha2init.c
+linking shared-object digest/sha2.bundle
+
+current directory: /Users/runner/work/secure-keys/secure-keys/vendor/bundle/ruby/3.3.0/gems/digest-3.2.0/ext/digest/sha2
+make DESTDIR\= sitearchdir\=./.gem.20250504-2275-x8ll8p sitelibdir\=./.gem.20250504-2275-x8ll8p install
+/usr/bin/install -c -m 0755 sha2.bundle ./.gem.20250504-2275-x8ll8p/digest
+
+current directory: /Users/runner/work/secure-keys/secure-keys/vendor/bundle/ruby/3.3.0/gems/digest-3.2.0/ext/digest/sha2
+make DESTDIR\= sitearchdir\=./.gem.20250504-2275-x8ll8p sitelibdir\=./.gem.20250504-2275-x8ll8p clean

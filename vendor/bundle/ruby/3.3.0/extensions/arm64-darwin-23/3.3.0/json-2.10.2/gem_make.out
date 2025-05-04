@@ -1,0 +1,24 @@
+current directory: /Users/runner/work/secure-keys/secure-keys/vendor/bundle/ruby/3.3.0/gems/json-2.10.2/ext/json/ext/parser
+/Users/runner/hostedtoolcache/Ruby/3.3.6/arm64/bin/ruby extconf.rb
+checking for rb_enc_interned_str() in ruby.h... yes
+checking for rb_hash_new_capa() in ruby.h... yes
+checking for rb_hash_bulk_insert() in ruby.h... yes
+checking for rb_category_warn() in ruby.h... yes
+checking for strnlen() in string.h... yes
+checking for whether -std=c99 is accepted as CFLAGS... yes
+creating Makefile
+
+current directory: /Users/runner/work/secure-keys/secure-keys/vendor/bundle/ruby/3.3.0/gems/json-2.10.2/ext/json/ext/parser
+make DESTDIR\= sitearchdir\=./.gem.20250504-2275-m14vqq sitelibdir\=./.gem.20250504-2275-m14vqq clean
+
+current directory: /Users/runner/work/secure-keys/secure-keys/vendor/bundle/ruby/3.3.0/gems/json-2.10.2/ext/json/ext/parser
+make DESTDIR\= sitearchdir\=./.gem.20250504-2275-m14vqq sitelibdir\=./.gem.20250504-2275-m14vqq
+compiling parser.c
+linking shared-object json/ext/parser.bundle
+
+current directory: /Users/runner/work/secure-keys/secure-keys/vendor/bundle/ruby/3.3.0/gems/json-2.10.2/ext/json/ext/parser
+make DESTDIR\= sitearchdir\=./.gem.20250504-2275-m14vqq sitelibdir\=./.gem.20250504-2275-m14vqq install
+/usr/bin/install -c -m 0755 parser.bundle ./.gem.20250504-2275-m14vqq/json/ext
+
+current directory: /Users/runner/work/secure-keys/secure-keys/vendor/bundle/ruby/3.3.0/gems/json-2.10.2/ext/json/ext/parser
+make DESTDIR\= sitearchdir\=./.gem.20250504-2275-m14vqq sitelibdir\=./.gem.20250504-2275-m14vqq clean

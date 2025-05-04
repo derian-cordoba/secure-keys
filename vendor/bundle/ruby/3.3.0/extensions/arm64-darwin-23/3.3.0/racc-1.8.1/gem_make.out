@@ -1,0 +1,18 @@
+current directory: /Users/runner/work/secure-keys/secure-keys/vendor/bundle/ruby/3.3.0/gems/racc-1.8.1/ext/racc/cparse
+/Users/runner/hostedtoolcache/Ruby/3.3.6/arm64/bin/ruby extconf.rb
+creating Makefile
+
+current directory: /Users/runner/work/secure-keys/secure-keys/vendor/bundle/ruby/3.3.0/gems/racc-1.8.1/ext/racc/cparse
+make DESTDIR\= sitearchdir\=./.gem.20250504-2275-iupdc3 sitelibdir\=./.gem.20250504-2275-iupdc3 clean
+
+current directory: /Users/runner/work/secure-keys/secure-keys/vendor/bundle/ruby/3.3.0/gems/racc-1.8.1/ext/racc/cparse
+make DESTDIR\= sitearchdir\=./.gem.20250504-2275-iupdc3 sitelibdir\=./.gem.20250504-2275-iupdc3
+compiling cparse.c
+linking shared-object racc/cparse.bundle
+
+current directory: /Users/runner/work/secure-keys/secure-keys/vendor/bundle/ruby/3.3.0/gems/racc-1.8.1/ext/racc/cparse
+make DESTDIR\= sitearchdir\=./.gem.20250504-2275-iupdc3 sitelibdir\=./.gem.20250504-2275-iupdc3 install
+/usr/bin/install -c -m 0755 cparse.bundle ./.gem.20250504-2275-iupdc3/racc
+
+current directory: /Users/runner/work/secure-keys/secure-keys/vendor/bundle/ruby/3.3.0/gems/racc-1.8.1/ext/racc/cparse
+make DESTDIR\= sitearchdir\=./.gem.20250504-2275-iupdc3 sitelibdir\=./.gem.20250504-2275-iupdc3 clean

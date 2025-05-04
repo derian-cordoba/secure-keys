@@ -1,0 +1,18 @@
+current directory: /Users/runner/work/secure-keys/secure-keys/vendor/bundle/ruby/3.3.0/gems/nkf-0.2.0/ext/nkf
+/Users/runner/hostedtoolcache/Ruby/3.3.6/arm64/bin/ruby extconf.rb
+creating Makefile
+
+current directory: /Users/runner/work/secure-keys/secure-keys/vendor/bundle/ruby/3.3.0/gems/nkf-0.2.0/ext/nkf
+make DESTDIR\= sitearchdir\=./.gem.20250504-2275-acc0lv sitelibdir\=./.gem.20250504-2275-acc0lv clean
+
+current directory: /Users/runner/work/secure-keys/secure-keys/vendor/bundle/ruby/3.3.0/gems/nkf-0.2.0/ext/nkf
+make DESTDIR\= sitearchdir\=./.gem.20250504-2275-acc0lv sitelibdir\=./.gem.20250504-2275-acc0lv
+compiling nkf.c
+linking shared-object nkf.bundle
+
+current directory: /Users/runner/work/secure-keys/secure-keys/vendor/bundle/ruby/3.3.0/gems/nkf-0.2.0/ext/nkf
+make DESTDIR\= sitearchdir\=./.gem.20250504-2275-acc0lv sitelibdir\=./.gem.20250504-2275-acc0lv install
+/usr/bin/install -c -m 0755 nkf.bundle ./.gem.20250504-2275-acc0lv
+
+current directory: /Users/runner/work/secure-keys/secure-keys/vendor/bundle/ruby/3.3.0/gems/nkf-0.2.0/ext/nkf
+make DESTDIR\= sitearchdir\=./.gem.20250504-2275-acc0lv sitelibdir\=./.gem.20250504-2275-acc0lv clean

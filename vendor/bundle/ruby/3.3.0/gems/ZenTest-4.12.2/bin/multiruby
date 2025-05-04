@@ -1,0 +1,101 @@
+#!/usr/bin/env ruby -w
+
+require "yaml"
+
+class Array
+  def human_sort
+    sort_by { |item| item.to_s.split(/(\d+)/).map { |e| [e.to_i, e] } }
+  end
+end
+
+root_dir = File.expand_path "~/.rubies"
+
+versions = Dir.chdir(root_dir) { Dir["*"] }.human_sort
+
+def setenv dir
+  ENV["PATH"] = "#{dir}/bin:#{ENV["PATH"]}"
+end
+
+def unsetenv key
+  if ENV[key] then
+    warn "WARNING: %s is set to %p. Removing..." % [key, ENV[key]]
+    ENV.delete key
+  end
+end
+
+unsetenv "GEM_HOME"
+unsetenv "GEM_PATH"
+
+##
+# multiruby -1 2.0 ruby_args...
+
+if ARGV.first == "-1" then
+  ARGV.shift
+  vers = Dir["#{root_dir}/#{ARGV.shift}*"]
+
+  abort "ambiguous version: #{vers.map { |p| File.basename p }.inspect}" if
+    vers.size != 1
+
+  dir = vers.first
+  setenv dir
+
+  exec "#{dir}/bin/ruby", *ARGV
+end
+
+def maybe_load_yaml_file config
+  if config then
+    if YAML.respond_to? :safe_load_file then
+      YAML.safe_load_file config, permitted_classes: [Regexp, Symbol]
+    else
+      YAML.load_file config
+    end
+  end
+end
+
+rcpath = File.expand_path "~/.hoerc"
+skip = if File.exist? rcpath then
+         conf = maybe_load_yaml_file rcpath
+         conf["multiruby_skip"] || []
+       end
+excl = (ENV["EXCLUDED_VERSIONS"] || "").split(/:/) + skip
+unless excl.empty? then
+  excludes = Regexp.union(*excl)
+  versions = versions.delete_if { |v| v =~ excludes }
+end
+
+# safekeep original PATH
+original_path = ENV['PATH']
+
+results = {}
+versions.each do |version|
+  dir  = "#{root_dir}/#{version}"
+  ruby = "#{dir}/bin/ruby"
+  ver  = version.delete_prefix "ruby-"
+
+  puts
+  puts "VERSION = #{ver}"
+  cmd = [ruby, ARGV].flatten.map { |s| s =~ /\"/ ? "'#{s}'" : s }.join(' ')
+  cmd.sub!(/#{ENV['HOME']}/, '~')
+  puts "CMD     = #{cmd}"
+  puts
+
+  setenv dir
+
+  system ruby, *ARGV
+  puts
+  puts "RESULT = #{$?}"
+  results[ver] = $?
+
+  # restore the path to original state
+  ENV['PATH'] = original_path
+end
+
+passed, failed = results.keys.partition { |v| results[v] == 0 }
+
+puts
+puts "TOTAL RESULT = #{failed.size} failures out of #{results.size}"
+puts
+puts "Passed: #{passed.join(", ")}"
+puts "Failed: #{failed.join(", ")}"
+
+exit failed.size

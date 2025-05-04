@@ -1,0 +1,18 @@
+=== 1.0.2 / 2018-03-16
+
+* 1 bug fix:
+
+  * Remove warnings when building on 64-bit architectures. (guykogus)
+
+=== 1.0.1 / 2015-05-07
+
+* 2 bug fixes:
+
+  * Fixed tests to not bother if we're not logged into OSX
+  * Removed dead rubyforge setting in Rakefile
+
+=== 1.0.0 / 2009-10-16
+
+* 1 major enhancement
+
+  * Birthday!

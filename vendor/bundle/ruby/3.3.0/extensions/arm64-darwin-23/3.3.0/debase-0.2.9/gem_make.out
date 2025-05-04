@@ -1,0 +1,27 @@
+current directory: /Users/runner/work/secure-keys/secure-keys/vendor/bundle/ruby/3.3.0/gems/debase-0.2.9/ext/attach
+/Users/runner/hostedtoolcache/Ruby/3.3.6/arm64/bin/ruby extconf.rb
+checking for vm_core.h... no
+checking for vm_core.h... no
+**************************************************************************
+No source for ruby-3.3.6-p108 (revision 75015d4c1f6965b5e85e96fb309f1f2129f933c0) provided with
+debase-ruby_core_source gem. Falling back to ruby-3.3.5-p100.
+**************************************************************************
+checking for vm_core.h... yes
+checking for iseq.h... yes
+checking for version.h... yes
+creating Makefile
+
+current directory: /Users/runner/work/secure-keys/secure-keys/vendor/bundle/ruby/3.3.0/gems/debase-0.2.9/ext/attach
+make DESTDIR\= sitearchdir\=./.gem.20250504-2849-iplk9a sitelibdir\=./.gem.20250504-2849-iplk9a clean
+
+current directory: /Users/runner/work/secure-keys/secure-keys/vendor/bundle/ruby/3.3.0/gems/debase-0.2.9/ext/attach
+make DESTDIR\= sitearchdir\=./.gem.20250504-2849-iplk9a sitelibdir\=./.gem.20250504-2849-iplk9a
+compiling attach.c
+linking shared-object attach.bundle
+
+current directory: /Users/runner/work/secure-keys/secure-keys/vendor/bundle/ruby/3.3.0/gems/debase-0.2.9/ext/attach
+make DESTDIR\= sitearchdir\=./.gem.20250504-2849-iplk9a sitelibdir\=./.gem.20250504-2849-iplk9a install
+/usr/bin/install -c -m 0755 attach.bundle ./.gem.20250504-2849-iplk9a
+
+current directory: /Users/runner/work/secure-keys/secure-keys/vendor/bundle/ruby/3.3.0/gems/debase-0.2.9/ext/attach
+make DESTDIR\= sitearchdir\=./.gem.20250504-2849-iplk9a sitelibdir\=./.gem.20250504-2849-iplk9a clean

@@ -1,0 +1,35 @@
+have_header: checking for CommonCrypto/CommonDigest.h... -------------------- yes
+
+DYLD_LIBRARY_PATH=.:/Users/runner/hostedtoolcache/Ruby/3.3.6/arm64/lib "clang -o conftest -I/Users/runner/hostedtoolcache/Ruby/3.3.6/arm64/include/ruby-3.3.0/arm64-darwin23 -I/Users/runner/hostedtoolcache/Ruby/3.3.6/arm64/include/ruby-3.3.0/ruby/backward -I/Users/runner/hostedtoolcache/Ruby/3.3.6/arm64/include/ruby-3.3.0 -I. -DENABLE_PATH_CHECK=0 -D_XOPEN_SOURCE -D_DARWIN_C_SOURCE -D_DARWIN_UNLIMITED_SELECT -D_REENTRANT   -fdeclspec -O3 -fno-fast-math -ggdb3 -Wall -Wextra -Wextra-tokens -Wdeprecated-declarations -Wdivision-by-zero -Wdiv-by-zero -Wimplicit-function-declaration -Wimplicit-int -Wpointer-arith -Wshorten-64-to-32 -Wwrite-strings -Wold-style-definition -Wmissing-noreturn -Wno-cast-function-type -Wno-constant-logical-operand -Wno-long-long -Wno-missing-field-initializers -Wno-overlength-strings -Wno-parentheses-equality -Wno-self-assign -Wno-tautological-compare -Wno-unused-parameter -Wno-unused-value -Wunused-variable -Wmisleading-indentation -Wundef -fno-common -pipe conftest.c  -L. -L/Users/runner/hostedtoolcache/Ruby/3.3.6/arm64/lib -L. -fstack-protector-strong -L/opt/homebrew/opt/gmp/lib  -arch arm64   -lruby.3.3  -lpthread  "
+checked program was:
+/* begin */
+1: #include "ruby.h"
+2: 
+3: int main(int argc, char **argv)
+4: {
+5:   return !!argv[argc];
+6: }
+/* end */
+
+DYLD_LIBRARY_PATH=.:/Users/runner/hostedtoolcache/Ruby/3.3.6/arm64/lib "clang -I/Users/runner/hostedtoolcache/Ruby/3.3.6/arm64/include/ruby-3.3.0/arm64-darwin23 -I/Users/runner/hostedtoolcache/Ruby/3.3.6/arm64/include/ruby-3.3.0/ruby/backward -I/Users/runner/hostedtoolcache/Ruby/3.3.6/arm64/include/ruby-3.3.0 -I. -DENABLE_PATH_CHECK=0 -D_XOPEN_SOURCE -D_DARWIN_C_SOURCE -D_DARWIN_UNLIMITED_SELECT -D_REENTRANT   -fdeclspec -O3 -fno-fast-math -ggdb3 -Wall -Wextra -Wextra-tokens -Wdeprecated-declarations -Wdivision-by-zero -Wdiv-by-zero -Wimplicit-function-declaration -Wimplicit-int -Wpointer-arith -Wshorten-64-to-32 -Wwrite-strings -Wold-style-definition -Wmissing-noreturn -Wno-cast-function-type -Wno-constant-logical-operand -Wno-long-long -Wno-missing-field-initializers -Wno-overlength-strings -Wno-parentheses-equality -Wno-self-assign -Wno-tautological-compare -Wno-unused-parameter -Wno-unused-value -Wunused-variable -Wmisleading-indentation -Wundef -fno-common -pipe -arch arm64  -c conftest.c"
+checked program was:
+/* begin */
+1: #include "ruby.h"
+2: 
+3: #include <CommonCrypto/CommonDigest.h>
+/* end */
+
+--------------------
+
+have_header: checking for sys/cdefs.h... -------------------- yes
+
+DYLD_LIBRARY_PATH=.:/Users/runner/hostedtoolcache/Ruby/3.3.6/arm64/lib "clang -I/Users/runner/hostedtoolcache/Ruby/3.3.6/arm64/include/ruby-3.3.0/arm64-darwin23 -I/Users/runner/hostedtoolcache/Ruby/3.3.6/arm64/include/ruby-3.3.0/ruby/backward -I/Users/runner/hostedtoolcache/Ruby/3.3.6/arm64/include/ruby-3.3.0 -I. -DENABLE_PATH_CHECK=0 -D_XOPEN_SOURCE -D_DARWIN_C_SOURCE -D_DARWIN_UNLIMITED_SELECT -D_REENTRANT   -fdeclspec -O3 -fno-fast-math -ggdb3 -Wall -Wextra -Wextra-tokens -Wdeprecated-declarations -Wdivision-by-zero -Wdiv-by-zero -Wimplicit-function-declaration -Wimplicit-int -Wpointer-arith -Wshorten-64-to-32 -Wwrite-strings -Wold-style-definition -Wmissing-noreturn -Wno-cast-function-type -Wno-constant-logical-operand -Wno-long-long -Wno-missing-field-initializers -Wno-overlength-strings -Wno-parentheses-equality -Wno-self-assign -Wno-tautological-compare -Wno-unused-parameter -Wno-unused-value -Wunused-variable -Wmisleading-indentation -Wundef -fno-common -pipe -arch arm64  -c conftest.c"
+checked program was:
+/* begin */
+1: #include "ruby.h"
+2: 
+3: #include <sys/cdefs.h>
+/* end */
+
+--------------------
+
