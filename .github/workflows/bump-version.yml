@@ -97,7 +97,7 @@ jobs:
       - uses: peter-evans/create-pull-request@v7
         with:
           token: ${{ secrets.GH_PAT }}
-          branch: ${{ github.head_ref }}
+          branch: ${{ github.head_ref || github.ref_name }}
           assignees: ${{ vars.ASSIGNEES || 'derian-cordoba' }}
           reviewers: ${{ vars.REVIEWERS || 'derian-cordoba' }}
           title: "Bumped version to v${{ needs.bump-version.outputs.version }}"
