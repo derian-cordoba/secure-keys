@@ -19,13 +19,10 @@ jobs:
   bump-version:
     if: contains(github.ref, 'refs/heads/release/')
     runs-on: ${{ vars.RUNS_ON || 'macos-latest' }}
-    outputs:
-      version: ${{ steps.release.outputs.version }}
+    permissions: write-all
 
     steps:
       - uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GH_PAT }}
 
       - uses: ruby/setup-ruby@v1
         with:
@@ -75,7 +72,7 @@ jobs:
           token: ${{ secrets.GH_PAT }}
           base: ${{ vars.BASE_BRANCH || 'main' }}
           branch: ${{ github.head_ref || github.ref_name }}
-          author: ${{ vars.AUTHOR || 'github-actions[bot] <github-actions[bot]@users.noreply.github.com>' }}
+          author: ${{ github.actor }} <${{ github.actor }}@users.noreply.github.com>
           commit-message: "feat(version): Bumped version to v${{ steps.release.outputs.version }}"
           assignees: ${{ vars.ASSIGNEES || 'derian-cordoba' }}
           reviewers: ${{ vars.REVIEWERS || 'derian-cordoba' }}
