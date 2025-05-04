@@ -1,5 +1,5 @@
 <div style="display: flex; gap: 10px; padding-bottom: 20px;">
-  <img src="https://img.shields.io/badge/version-1.1.6-cyan" alt="SecureKeys version">
+  <img src="https://img.shields.io/badge/version-0.0.1-cyan" alt="SecureKeys version">
 
   <img src="https://img.shields.io/badge/iOS-^13.0-blue" alt="iOS version 13.0">
 
