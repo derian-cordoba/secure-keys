@@ -71,14 +71,9 @@ jobs:
         with:
           base: ${{ vars.BASE_BRANCH || 'main' }}
           branch: ${{ github.head_ref || github.ref_name }}
-          author: ${{ github.actor }} <${{ github.actor }}@users.noreply.github.com>
           commit-message: "feat(version): Bumped version to v${{ steps.release.outputs.version }}"
           assignees: ${{ vars.ASSIGNEES || 'derian-cordoba' }}
           reviewers: ${{ vars.REVIEWERS || 'derian-cordoba' }}
-          add-paths: |
-            README.md
-            lib/version.rb
-            Gemfile.lock
           title: "Bumped version to v${{ steps.release.outputs.version }}"
           body: |
             ### Description
