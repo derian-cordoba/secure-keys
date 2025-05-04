@@ -19,6 +19,9 @@ jobs:
   bump-version:
     if: contains(github.ref, 'refs/heads/release/')
     runs-on: ${{ vars.RUNS_ON || 'macos-latest' }}
+    outputs:
+      version: ${{ steps.release.outputs.version }}
+
     steps:
       - uses: actions/checkout@v4
         with:
@@ -76,3 +79,29 @@ jobs:
           git add lib/version.rb README.md Gemfile.lock
           git commit -m "feat(version): Bumped version to v$VERSION"
           git push
+
+  open-pull-request:
+    needs: bump-version
+    if: contains(github.ref, 'refs/heads/release/')
+    runs-on: ${{ vars.RUNS_ON || 'ubuntu-latest' }}
+
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GH_PAT }}
+
+      - uses: peter-evans/create-pull-request@v7
+        with:
+          token: ${{ secrets.GH_PAT }}
+          branch: ${{ github.head_ref }}
+          assignees: ${{ vars.ASSIGNEES || 'derian-cordoba' }}
+          reviewers: ${{ vars.REVIEWERS || 'derian-cordoba' }}
+          title: "Bumped version to v${{ needs.bump-version.outputs.version }}"
+          body: |
+            ### Description
+
+            Bumped version to v${{ needs.bump-version.outputs.version }}.
