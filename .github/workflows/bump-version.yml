@@ -19,7 +19,9 @@ jobs:
   bump-version:
     if: contains(github.ref, 'refs/heads/release/')
     runs-on: ${{ vars.RUNS_ON || 'macos-latest' }}
-    permissions: write-all
+    permissions:
+      contents: write
+      pull-requests: write
 
     steps:
       - uses: actions/checkout@v4
@@ -75,6 +77,10 @@ jobs:
           assignees: ${{ vars.ASSIGNEES || 'derian-cordoba' }}
           reviewers: ${{ vars.REVIEWERS || 'derian-cordoba' }}
           title: "Bumped version to v${{ steps.release.outputs.version }}"
+          add-paths: |
+            README.md
+            lib/version.rb
+            Gemfile.lock
           body: |
             ### Description
 
