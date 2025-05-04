@@ -69,40 +69,17 @@ jobs:
           bundle install
           bundle config set frozen true
 
-      - name: Commit and Push changes
-        if: steps.release.outputs.version != ''
-        env:
-          VERSION: ${{ steps.release.outputs.version }}
-        run: |
-          git config user.name 'github-actions[bot]'
-          git config user.email 'github-actions[bot]@users.noreply.github.com'
-          git add lib/version.rb README.md Gemfile.lock
-          git commit -m "feat(version): Bumped version to v$VERSION"
-          git push
-
-  open-pull-request:
-    needs: bump-version
-    if: contains(github.ref, 'refs/heads/release/')
-    runs-on: ${{ vars.RUNS_ON || 'ubuntu-latest' }}
-
-    permissions:
-      contents: write
-      pull-requests: write
-
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GH_PAT }}
-
       - uses: peter-evans/create-pull-request@v7
+        if: steps.release.outputs.version != ''
         with:
           token: ${{ secrets.GH_PAT }}
           base: ${{ vars.BASE_BRANCH || 'main' }}
           branch: ${{ github.head_ref || github.ref_name }}
+          commit-message: "feat(version): Bumped version to v${{ steps.release.outputs.version }}"
           assignees: ${{ vars.ASSIGNEES || 'derian-cordoba' }}
           reviewers: ${{ vars.REVIEWERS || 'derian-cordoba' }}
-          title: "Bumped version to v${{ needs.bump-version.outputs.version }}"
+          title: "Bumped version to v${{ steps.release.outputs.version }}"
           body: |
             ### Description
 
-            Bumped version to v${{ needs.bump-version.outputs.version }}.
+            Bumped version to v${{ steps.release.outputs.version }}.
