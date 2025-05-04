@@ -77,7 +77,6 @@ jobs:
           base: ${{ vars.BASE_BRANCH || 'main' }}
           branch: ${{ github.head_ref || github.ref_name }}
           commit-message: "feat(version): Bumped version to v${{ steps.release.outputs.version }}"
-          assignees: ${{ vars.ASSIGNEES || 'derian-cordoba' }}
           reviewers: ${{ vars.REVIEWERS || 'derian-cordoba' }}
           title: "Bumped version to v${{ steps.release.outputs.version }}"
           add-paths: |
