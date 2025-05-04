@@ -25,8 +25,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GH_PAT }}
 
       - uses: ruby/setup-ruby@v1
         with:
@@ -73,7 +71,6 @@ jobs:
       - uses: peter-evans/create-pull-request@v7
         if: steps.release.outputs.version != ''
         with:
-          token: ${{ secrets.GH_PAT }}
           base: ${{ vars.BASE_BRANCH || 'main' }}
           branch: ${{ github.head_ref || github.ref_name }}
           commit-message: "feat(version): Bumped version to v${{ steps.release.outputs.version }}"
