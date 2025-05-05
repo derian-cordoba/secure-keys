@@ -7,7 +7,7 @@ on:
 
 jobs:
   publish-gem:
-    if: github.event.pull_request.merged == 'true' && (contains(github.ref, 'refs/heads/release/'))
+    if: github.event.pull_request.merged == true && (contains(github.ref, 'refs/heads/release/'))
     runs-on: ${{ vars.RUNS_ON || 'macos-latest' }}
 
     steps:
