@@ -34,10 +34,6 @@ jobs:
         run: |
           gem push *.gem || true
 
-      - name: Re-build gem
-        run: |
-          gem build *.gemspec
-
       - name: Configure GitHub Packages
         run: |
           printf -- ":github: Bearer ${{ secrets.GH_PAT }}\n" > $HOME/.gem/credentials
@@ -48,6 +44,10 @@ jobs:
           GITHUB_USERNAME: ${{ vars.GITHUB_USERNAME || 'derian-cordoba' }}
         run: |
           sed -i '' "s|https://rubygems.org|${{ env.RUBY_GEMS_GITHUB_PACKAGE_URL }}|" secure-keys.gemspec
+
+      - name: Re-build gem
+        run: |
+          gem build *.gemspec
 
       - name: Publish gem - GitHub Packages
         env:
