@@ -61,7 +61,7 @@ jobs:
       - name: Get release version from branch
         id: release
         run: |
-          version=$(echo "${{ github.event.pull_request.base.ref }}" | sed -E 's|release/v([0-9]+\.[0-9]+\.[0-9]+)|\1|')
+          version=$(echo "${{ github.head_ref }}" | sed -E 's|release/v([0-9]+\.[0-9]+\.[0-9]+)|\1|')
 
           if [ -z "$version" ]; then
             echo "❌ No version found in branch name"
