@@ -42,7 +42,7 @@ jobs:
         env:
           RUBY_GEMS_GITHUB_PACKAGE_URL: ${{ vars.RUBY_GEMS_GITHUB_PACKAGE_URL || 'https://rubygems.pkg.github.com/derian-cordoba' }}
         run: |
-          sed -e -i "s|https://rubygems.org|${{ env.RUBY_GEMS_GITHUB_PACKAGE_URL }}|" secure-keys.gemspec
+          sed -i '' "s|https://rubygems.org|${{ env.RUBY_GEMS_GITHUB_PACKAGE_URL }}|" secure-keys.gemspec
 
       - name: Publish gem - GitHub Packages
         env:
