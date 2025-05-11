@@ -26,7 +26,7 @@ Gem::Specification.new do |spec|
     'homepage_uri' => SecureKeys::HOMEPAGE_URI,
     'source_code_uri' => SecureKeys::HOMEPAGE_URI,
     'changelog_uri' => "#{SecureKeys::HOMEPAGE_URI}/releases",
-    'allowed_push_host' => "#{SecureKeys::GEM_HOMEPAGE_URI}/derian-cordoba",
+    'allowed_push_host' => 'https://rubygems.org',
     'rubygems_mfa_required' => 'true',
   }
 

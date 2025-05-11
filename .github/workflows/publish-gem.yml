@@ -2,12 +2,9 @@ name: Publish gem
 
 on:
   pull_request:
-    types:
-      - closed
 
 jobs:
   publish-gem:
-    if: github.event.pull_request.merged == true && startsWith(github.event.pull_request.base.ref, 'release/')
     runs-on: ${{ vars.RUNS_ON || 'macos-latest' }}
 
     steps:
@@ -35,24 +32,36 @@ jobs:
 
       - name: Publish gem - RubyGems
         run: |
-          gem push *.gem
+          gem push *.gem || true
 
       - name: Configure GitHub Packages
         run: |
           printf -- ":github: Bearer ${{ secrets.GH_PAT }}\n" > $HOME/.gem/credentials
 
+      - name: Update allow push host
+        env:
+          RUBY_GEMS_GITHUB_PACKAGE_URL: ${{ vars.RUBY_GEMS_GITHUB_PACKAGE_URL || 'https://rubygems.pkg.github.com' }}
+          GITHUB_USERNAME: ${{ vars.GITHUB_USERNAME || 'derian-cordoba' }}
+        run: |
+          sed -i '' "s|https://rubygems.org|${{ env.RUBY_GEMS_GITHUB_PACKAGE_URL }}|" secure-keys.gemspec
+
+      - name: Re-build gem
+        run: |
+          gem build *.gemspec
+
       - name: Publish gem - GitHub Packages
         env:
-          RUBY_GEMS_GITHUB_PACKAGE_URL: ${{ vars.RUBY_GEMS_GITHUB_PACKAGE_URL || 'https://rubygems.pkg.github.com/derian-cordoba' }}
+          RUBY_GEMS_GITHUB_PACKAGE_URL: ${{ vars.RUBY_GEMS_GITHUB_PACKAGE_URL || 'https://rubygems.pkg.github.com' }}
+          GITHUB_USERNAME: ${{ vars.GITHUB_USERNAME || 'derian-cordoba' }}
         run: |
           gem push --key github \
-            --host ${{ env.RUBY_GEMS_GITHUB_PACKAGE_URL }} \
-            *.gem
+            --host ${{ format('{0}/{1}', env.RUBY_GEMS_GITHUB_PACKAGE_URL, env.GITHUB_USERNAME) }} \
+            *.gem || true
 
       - name: Get release version from branch
         id: release
         run: |
-          version=$(echo "${{ github.event.pull_request.base.ref }}" | sed -E 's|release/v([0-9]+\.[0-9]+\.[0-9]+)|\1|')
+          version=$(echo "${{ github.head_ref }}" | sed -E 's|release/v([0-9]+\.[0-9]+\.[0-9]+)|\1|')
 
           if [ -z "$version" ]; then
             echo "❌ No version found in branch name"
