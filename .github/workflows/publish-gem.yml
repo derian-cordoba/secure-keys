@@ -41,9 +41,8 @@ jobs:
       - name: Update allow push host
         env:
           RUBY_GEMS_GITHUB_PACKAGE_URL: ${{ vars.RUBY_GEMS_GITHUB_PACKAGE_URL || 'https://rubygems.pkg.github.com' }}
-          GITHUB_USERNAME: ${{ vars.GITHUB_USERNAME || 'derian-cordoba' }}
         run: |
-          sed -i '' "s|https://rubygems.org|${{ format('{0}/{1}', env.RUBY_GEMS_GITHUB_PACKAGE_URL, env.GITHUB_USERNAME) }}|" secure-keys.gemspec
+          sed -i '' "s|https://rubygems.org|${{ env.RUBY_GEMS_GITHUB_PACKAGE_URL }}|" secure-keys.gemspec
 
       - name: Publish gem - GitHub Packages
         env:
