@@ -2,9 +2,12 @@ name: Publish gem
 
 on:
   pull_request:
+    types:
+      - closed
 
 jobs:
   publish-gem:
+    if: github.event.pull_request.merged == true && startsWith(github.head_ref, 'release/')
     runs-on: ${{ vars.RUNS_ON || 'macos-latest' }}
 
     steps:
@@ -32,7 +35,7 @@ jobs:
 
       - name: Publish gem - RubyGems
         run: |
-          gem push *.gem || true
+          gem push *.gem
 
       - name: Configure GitHub Packages
         run: |
@@ -56,7 +59,7 @@ jobs:
         run: |
           gem push --key github \
             --host ${{ format('{0}/{1}', env.RUBY_GEMS_GITHUB_PACKAGE_URL, env.GITHUB_USERNAME) }} \
-            *.gem || true
+            *.gem
 
       - name: Get release version from branch
         id: release
