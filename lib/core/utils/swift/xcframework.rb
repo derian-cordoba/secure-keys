@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 
-require_relative './swift'
+require_relative 'swift'
 require_relative '../../globals/globals'
 require_relative '../../console/shell'
 require_relative '../../console/logger'

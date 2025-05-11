@@ -8,7 +8,7 @@ module SecureKeys
         # @param key [String] the key of the environment variable to fetch
         # @return [String] the value of the environment variable
         def fetch(key:)
-          ENV[key]
+          ENV.fetch(key)
         rescue StandardError
           puts "❌ Error fetching the key: #{key} from ENV variables"
         end

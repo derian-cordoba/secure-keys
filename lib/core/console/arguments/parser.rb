@@ -2,8 +2,8 @@
 
 require 'optparse'
 require_relative '../../globals/globals'
-require_relative './handler'
-require_relative './xcframework/parser'
+require_relative 'handler'
+require_relative 'xcframework/parser'
 
 module SecureKeys
   module Core

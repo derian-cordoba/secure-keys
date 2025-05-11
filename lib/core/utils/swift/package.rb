@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 
-require_relative './swift'
+require_relative 'swift'
 require_relative '../../console/shell'
 
 module SecureKeys

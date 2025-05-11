@@ -2,7 +2,7 @@
 
 require 'optparse'
 require_relative '../../../globals/globals'
-require_relative './handler'
+require_relative 'handler'
 
 module SecureKeys
   module Core
