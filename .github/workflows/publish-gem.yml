@@ -2,12 +2,9 @@ name: Publish gem
 
 on:
   pull_request:
-    types:
-      - closed
 
 jobs:
   publish-gem:
-    if: github.event.pull_request.merged == true && startsWith(github.event.pull_request.base.ref, 'release/')
     runs-on: ${{ vars.RUNS_ON || 'macos-latest' }}
 
     steps:
