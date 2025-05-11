@@ -7,12 +7,11 @@ on:
 
 jobs:
   publish-gem:
-    if: github.event.pull_request.merged == true && (contains(github.ref, 'refs/heads/release/'))
+    if: github.event.pull_request.merged == true && startsWith(github.event.pull_request.base.ref, 'release/')
     runs-on: ${{ vars.RUNS_ON || 'macos-latest' }}
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - uses: ruby/setup-ruby@v1
 
@@ -20,17 +19,76 @@ jobs:
         run: |
           bundle install
 
-      - name: Configure credentials
-        env:
-          GEM_HOST_API_KEY: ${{ secrets.GEM_HOST_API_KEY }}
-        run: |
-          gem_directory="$HOME/.gem"
-          mkdir -p $gem_directory
-          touch $gem_directory/credentials
-          chmod 0600 $gem_directory/credentials
-          printf -- "---\n:rubygems_api_key: ${GEM_HOST_API_KEY}\n" > $gem_directory/credentials
-
-      - name: Publish gem
+      - name: Build gem
         run: |
           gem build *.gemspec
+
+      - name: Create gem credentials file
+        run: |
+          mkdir -p $HOME/.gem
+          touch $HOME/.gem/credentials
+          chmod 0600 $HOME/.gem/credentials
+
+      - name: Configure gem credentials
+        run: |
+          printf -- "---\n:rubygems_api_key: ${{ secrets.GEM_HOST_API_KEY }}\n" > $HOME/.gem/credentials
+
+      - name: Publish gem - RubyGems
+        run: |
           gem push *.gem
+
+      - name: Configure GitHub Packages
+        run: |
+          printf -- ":github: Bearer ${{ secrets.GH_PAT }}\n" > $HOME/.gem/credentials
+
+      - name: Publish gem - GitHub Packages
+        env:
+          RUBY_GEMS_GITHUB_PACKAGE_URL: ${{ vars.RUBY_GEMS_GITHUB_PACKAGE_URL || 'https://rubygems.pkg.github.com/derian-cordoba' }}
+        run: |
+          gem push --key github \
+            --host ${{ env.RUBY_GEMS_GITHUB_PACKAGE_URL }} \
+            *.gem
+
+      - name: Get release version from branch
+        id: release
+        run: |
+          version=$(echo "${{ github.event.pull_request.base.ref }}" | sed -E 's|release/v([0-9]+\.[0-9]+\.[0-9]+)|\1|')
+
+          if [ -z "$version" ]; then
+            echo "❌ No version found in branch name"
+            exit 1
+          fi
+
+          echo "version=$version" >> $GITHUB_OUTPUT
+
+      - name: Create tag
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GH_PAT }}
+          script: |
+            github.rest.git.createRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: `refs/tags/v${{ steps.release.outputs.version }}`,
+              sha: context.sha
+            })
+
+      - name: Create GitHub Release
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GH_PAT }}
+          script: |
+            await github.rest.repos.createRelease({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              name: `v${{ steps.release.outputs.version }}`,
+              tag_name: `v${{ steps.release.outputs.version }}`,
+              generate_release_notes: true,
+              draft: false,
+              prerelease: false
+            });
+
+      - name: Clean up
+        run: |
+          rm -rf $HOME/.gem
+          rm *.gem
