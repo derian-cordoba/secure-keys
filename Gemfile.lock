@@ -105,11 +105,11 @@ PLATFORMS
 
 DEPENDENCIES
   bump
-  rspec (~> 3.13.0)
-  rubocop (~> 1.71.2)
-  ruby-debug-ide (~> 0.7.5)
+  rspec
+  rubocop
+  ruby-debug-ide
   secure-keys!
-  simplecov (~> 0.22.0)
+  simplecov
 
 RUBY VERSION
    ruby 3.3.6p108
