@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 # rubocop:disable Layout/HeredocIndentation
 
-require_relative './swift'
+require_relative 'swift'
 
 module SecureKeys
   module Swift
@@ -25,9 +25,7 @@ module SecureKeys
       # Write the keys to the file
       def write
         # Write the file
-        File.open("#{key_directory}/#{key_file}", 'w') do |file|
-          file.write(key_swift_file_template(content: formatted_keys))
-        end
+        File.write("#{key_directory}/#{key_file}", key_swift_file_template(content: formatted_keys))
       end
 
       # Generate the formatted keys content using Swift code format

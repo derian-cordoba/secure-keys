@@ -9,4 +9,8 @@ gemspec path: '.'
 # Add development dependencies
 group :development do
   gem 'bump'
+  gem 'rspec'
+  gem 'rubocop'
+  gem 'ruby-debug-ide'
+  gem 'simplecov'
 end

@@ -1,13 +1,13 @@
 #!/usr/bin/env ruby
 
-require_relative './globals/globals'
-require_relative './environment/ci'
-require_relative './environment/keychain'
-require_relative './utils/swift/writer'
-require_relative './utils/swift/package'
-require_relative './utils/swift/swift'
-require_relative './utils/swift/xcframework'
-require_relative './utils/openssl/cipher'
+require_relative 'globals/globals'
+require_relative 'environment/ci'
+require_relative 'environment/keychain'
+require_relative 'utils/swift/writer'
+require_relative 'utils/swift/package'
+require_relative 'utils/swift/swift'
+require_relative 'utils/swift/xcframework'
+require_relative 'utils/openssl/cipher'
 
 module SecureKeys
   module Core

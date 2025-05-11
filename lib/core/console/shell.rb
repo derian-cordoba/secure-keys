@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 require 'open3'
-require_relative './logger'
+require_relative 'logger'
 require_relative '../globals/globals'
 
 module SecureKeys
@@ -49,8 +49,6 @@ module SecureKeys
           return yield(exit_status || $CHILD_STATUS, output, command) if block_given?
 
           [output, exit_status || $CHILD_STATUS, command]
-        rescue StandardError => e
-          raise e
         ensure
           Encoding.default_external = previous_encoding.first
           Encoding.default_internal = previous_encoding.last

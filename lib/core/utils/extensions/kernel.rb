@@ -1,5 +1,5 @@
-require_relative './string/to_bool'
-require_relative './string/camelize'
+require_relative 'string/to_bool'
+require_relative 'string/camelize'
 
 module Kernel
   include BooleanCasting
