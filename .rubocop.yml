@@ -1,5 +1,13 @@
 # Ruby style guide: https://rubystyle.guide/
 
+#-- Configuration rules:
+
+# Enable all new cops by default
+# https://docs.rubocop.org/rubocop/configuration.html
+AllCops:
+  NewCops: enable
+  SuggestExtensions: false
+
 #-- Metrics rules:
 
 # Checks if the length of a method exceeds some maximum value.
@@ -50,6 +58,11 @@ Layout/LineLength:
 # Enforces that Ruby source files are not empty
 # https://docs.rubocop.org/rubocop/cops_lint.html#lintemptyfile
 Lint/EmptyFile:
+  Enabled: false
+
+# Checks if a file which has a shebang line as its first line is granted execute permission.
+# https://docs.rubocop.org/rubocop/cops_lint.html#lintscriptpermission
+Lint/ScriptPermission:
   Enabled: false
 
 # Do not define constants within a block, since the block's scope does not isolate or 
