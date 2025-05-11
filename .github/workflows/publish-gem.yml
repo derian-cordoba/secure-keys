@@ -32,7 +32,7 @@ jobs:
 
       - name: Publish gem - RubyGems
         run: |
-          gem push *.gem
+          gem push *.gem || true
 
       - name: Configure GitHub Packages
         run: |
