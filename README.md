@@ -1,5 +1,11 @@
 # Secure Key Generator for iOS Projects
 
+<div style="display: flex; gap: 10px; padding-bottom: 20px;">
+  <img src="https://img.shields.io/badge/version-1.1.7-cyan" alt="SecureKeys version">
+  <img src="https://img.shields.io/badge/iOS-^13.0-blue" alt="iOS version 13.0">
+  <img src="https://img.shields.io/badge/Ruby-^3.3.6-red" alt="Ruby version 3.3.6">
+</div>
+
 `secure-keys` is a Ruby CLI that generates a `SecureKeys.xcframework` for iOS apps. It reads secret values from macOS Keychain on local machines or environment variables in CI, encrypts those values with AES-256-GCM, writes a Swift API, builds an XCFramework, and optionally adds that framework to an Xcode target.
 
 ## Requirements
