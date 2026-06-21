@@ -31,11 +31,9 @@ module SecureKeys
                 puts self
                 exit(0)
               end
-              on(
-                '--staged',
-                TrueClass,
-                'Scan staged git changes instead of a directory (default: false)'
-              )
+              on('--staged', 'Scan staged git changes instead of a directory (default: false)') do
+                Handler.set(key: :staged, value: true)
+              end
               on(
                 '-o', '--output FILE',
                 String,
@@ -51,7 +49,7 @@ module SecureKeys
                 String,
                 'Comma-separated directory names to exclude from the scan'
               )
-              on('--verbose', TrueClass, 'Enable verbose output (default: false)') do
+              on('--verbose', 'Enable verbose output (default: false)') do
                 Core::Console::Argument::Handler.set(key: :verbose, value: true)
               end
             end

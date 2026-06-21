@@ -67,6 +67,9 @@ module SecureKeys
           if line.start_with?('+++')
             current_file = line.sub(%r{^\+\+\+ b/}, '').strip
             line_number = 0
+          elsif line.start_with?('@@') && current_file
+            hunk_match = line.match(/\+(\d+)/)
+            line_number = hunk_match ? hunk_match[1].to_i - 1 : 0
           elsif line.start_with?('+') && current_file && !line.start_with?('+++')
             line_number += 1
             check_line(
@@ -110,10 +113,17 @@ module SecureKeys
         return if line.strip.start_with?('#', '//', '/*', '*')
         return if line.length < 10
 
-        PATTERNS.each do |type, config|
-          next unless line.match?(config[:pattern])
+        seen = {}
 
+        PATTERNS.each do |type, config|
           match = line.match(config[:pattern])
+          next unless match
+
+          signature = [match.begin(0), match[0]]
+          next if seen[signature]
+
+          seen[signature] = true
+          masked = mask_secret(secret: match[0])
 
           findings << Finding.new(
             file: file_path,
@@ -122,8 +132,8 @@ module SecureKeys
             type:,
             description: config[:description],
             severity: config[:severity],
-            matched_text: mask_secret(secret: match[0]),
-            full_line: line.strip,
+            matched_text: masked,
+            full_line: line.strip.sub(match[0], masked),
             is_addition:
           )
         end
@@ -143,6 +153,7 @@ module SecureKeys
         return if already_matched_by_pattern?(line:)
 
         match = line.match(suspicious_pattern)
+        masked = mask_secret(secret: match[0])
 
         findings << Finding.new(
           file: file_path,
@@ -151,8 +162,8 @@ module SecureKeys
           type: :suspicious_assignment,
           description: 'Suspicious secret assignment',
           severity: :low,
-          matched_text: mask_secret(secret: match[0]),
-          full_line: line.strip,
+          matched_text: masked,
+          full_line: line.strip.sub(match[0], masked),
           is_addition:
         )
       end
@@ -190,6 +201,8 @@ module SecureKeys
           next if excluded?(name: entry)
 
           full_path = File.join(path, entry)
+
+          next if File.symlink?(full_path) && !options.fetch(:follow_symlinks, false)
 
           if File.directory?(full_path)
             traverse_directory(

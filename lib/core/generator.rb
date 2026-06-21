@@ -40,16 +40,15 @@ module SecureKeys
       end
 
       def generate
-        pre_actions
-
         if Globals.generate_xcframework?
+          pre_actions
           generate_swift_package
           write_keys
           xcframework.generate
+          post_actions
         end
 
         xcframework.configure_xcframework_to_xcodeproj
-        post_actions if Globals.generate_xcframework?
       end
 
       private

@@ -6,7 +6,7 @@ module SecureKeys
     WEAK_SECRETS = %w[
       password password123 123456 secret test demo
       admin root changeme temp default example
-      sample placeholder your-key-here YOUR_API_KEY
+      sample placeholder your-key-here your_api_key
       xxxxxxxxxxxx 0000000000 1234567890
     ].freeze
   end

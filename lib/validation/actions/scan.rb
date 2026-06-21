@@ -66,7 +66,7 @@ module SecureKeys
           Core::Console::Logger.message(message: separator)
 
           if result.clean?
-            Core::Console::Logger.success(message: '\t✅ No secrets found')
+            Core::Console::Logger.success(message: "\t✅ No secrets found")
           else
             print_severity_summary(result:)
             Core::Console::Logger.message(message: separator)
