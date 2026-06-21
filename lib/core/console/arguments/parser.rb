@@ -15,6 +15,11 @@ module SecureKeys
             super('Usage: secure-keys [--options]')
             separator('')
 
+            # Route known subcommands before processing flags.
+            # Like --help and --version, subcommand handlers exit internally,
+            # so the generator is never reached.
+            route_subcommand!
+
             # Configure the argument parser
             configure!
             order!(into: Handler.arguments)
@@ -22,6 +27,27 @@ module SecureKeys
           end
 
           private
+
+          # Known positional subcommands mapped to their handler lambdas.
+          # Each lambda is expected to handle its own output and exit.
+          SUBCOMMANDS = {
+            'validate' => lambda {
+              require_relative '../../../validation/console/arguments/parser'
+              Validation::Console::Argument::Parser.new.execute
+            },
+          }.freeze
+
+          # Detect a known positional subcommand as the first ARGV token and delegate
+          # to its handler. Like --help and --version, the handler exits internally so
+          # the generator is never reached.
+          # @return [void]
+          def route_subcommand!
+            token = ARGV.first
+            return unless SUBCOMMANDS.key?(token)
+
+            ARGV.shift
+            SUBCOMMANDS[token].call
+          end
 
           # Configure the argument parser
           def configure!
