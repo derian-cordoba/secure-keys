@@ -1,7 +1,7 @@
 # Secure Key Generator for iOS Projects
 
 <div style="display: flex; gap: 10px; padding-bottom: 20px;">
-  <img src="https://img.shields.io/badge/version-1.1.7-cyan" alt="SecureKeys version">
+  <img src="https://img.shields.io/badge/version-1.2.0-cyan" alt="SecureKeys version">
   <img src="https://img.shields.io/badge/iOS-^13.0-blue" alt="iOS version 13.0">
   <img src="https://img.shields.io/badge/Ruby-^3.3.6-red" alt="Ruby version 3.3.6">
 </div>
