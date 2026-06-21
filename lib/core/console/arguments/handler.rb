@@ -1,9 +1,13 @@
+require_relative 'fetchable'
+
 module SecureKeys
   module Core
     module Console
       module Argument
         class Handler
           class << self
+            include Fetchable
+
             attr_reader :arguments
           end
 
@@ -16,31 +20,11 @@ module SecureKeys
             verbose: false,
           }
 
-          # Fetch the argument value by key
-          # from CLI arguments or environment variables
-          #
-          # @param key [Array|Symbol] the argument key
-          # @param default [String] the default value
-          #
-          # @return [String] the argument value
-          def self.fetch(key:, default: nil)
-            keys = Array(key).map(&:to_sym)
-            joined_keys = keys.join('_').upcase
-            @arguments.dig(*keys) || ENV["SECURE_KEYS_#{joined_keys}"] || ENV[joined_keys] || default
-          end
-
-          # Set the value of the key
-          # @param key [Symbol] the key to be updated
-          # @param value [String] the value to be updated
-          def self.set(key:, value:)
-            @arguments[key.to_sym] = value
-          end
-
-          # Append the argument value by key
+          # Append a hash value into a nested key, initialising it when absent
           # @param key [Symbol] the argument key
-          # @param value [String] the argument value
+          # @param value [Hash] the hash to merge in
           def self.deep_merge(key:, value:)
-            @arguments[key.to_sym] ||= {} # Initialize the key if it doesn't exist
+            @arguments[key.to_sym] ||= {}
             @arguments[key.to_sym].merge!(value)
           end
         end

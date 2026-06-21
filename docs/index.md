@@ -1,136 +1,162 @@
 # Secure Key Generator for iOS Projects
 
-A utility to securely generate and manage keys for iOS projects using `xcframework`. This tool helps to safely store and retrieve sensitive keys such as API tokens and access credentials in your iOS app, with support for both local and CI environments.
+`secure-keys` is a Ruby CLI that generates a `SecureKeys.xcframework` for iOS apps. It reads secret values from macOS Keychain on local machines or environment variables in CI, encrypts those values with AES-256-GCM, writes a Swift API, builds an XCFramework, and optionally adds that framework to an Xcode target.
 
-## Prerequisites
+## Requirements
 
-Before you begin, ensure that your development environment meets the following prerequisites:
-
-- **Ruby 3.3.6 or higher**
-- **iOS 13.0 or higher**
+- macOS 11.0 or later
+- Ruby 3.3 or later
+- Xcode command line tools
+- iOS 13.0 or later
 
 ## Installation
 
-There are multiple ways to install the `SecureKeys` utility:
-
-### Option 1: Install via Homebrew
-
-You can install the `SecureKeys` utility using [Homebrew](https://brew.sh/) with the following commands:
+Install with Homebrew:
 
 ```bash
 brew tap derian-cordoba/secure-keys
-
 brew install derian-cordoba/secure-keys/secure-keys
 ```
 
-For more details, you can visit the [homebrew-secure-keys](https://github.com/derian-cordoba/homebrew-secure-keys) repository.
-
-### Option 2: Install via RubyGems
-
-Alternatively, you can install the utility using RubyGems:
+Install with RubyGems:
 
 ```bash
 gem install secure-keys
 ```
 
-### Option 3: Install via Bundler
+Install with Bundler:
 
-If you're using Bundler to manage your Ruby dependencies, add the gem to your `Gemfile`:
-
-```bash
+```ruby
 gem 'secure-keys'
 ```
-
-Then, run:
 
 ```bash
 bundle install
 ```
 
-For more details, you can visit the [homebrew-secure-keys](https://github.com/derian-cordoba/homebrew-secure-keys) repository.
+## Quick Start
 
-## Usage
+From an iOS project root:
 
-### Step 1: Define Your Keys
+```bash
+security add-generic-password -a "secure-keys" -s "secure-keys" -w "apiKey,githubToken"
+security add-generic-password -a "secure-keys" -s "apiKey" -w "your-api-key"
+security add-generic-password -a "secure-keys" -s "githubToken" -w "your-github-token"
 
-First, determine the keys you want to use in your iOS project. The keys can be sourced either from your Keychain or environment variables. The source of keys is determined by the `CI` environment variable.
+secure-keys
+```
 
-- If `CI=true`, keys will be read from environment variables.
-- If `CI=false` or not set, keys will be read from the Keychain.
+The command creates `.secure-keys/SecureKeys.xcframework`.
 
-You can configure your keys as follows:
+Use the generated framework from Swift:
 
-#### From Keychain
+```swift
+import SecureKeys
 
-1. Define the secure-keys record in your Keychain with the key names and values. The value should be a comma-separated list of keys.
+let apiKey = SecureKey.apiKey.decryptedValue
+let githubToken = key(for: .githubToken)
+```
+
+## How Secret Generation Works
+
+`secure-keys` does not create third-party API keys for providers such as GitHub, Firebase, Stripe, or AWS. Those secrets must be created in their owning service first.
+
+The tool generates an iOS framework that contains encrypted copies of the secret values you provide:
+
+1. Resolve the secret source:
+   - Local runs use macOS Keychain unless CI mode is enabled.
+   - CI runs use environment variables.
+2. Read the configured list of secret names.
+3. Read each secret value by name.
+4. Generate a random AES-256-GCM key for this build.
+5. Encrypt each secret value.
+6. Write a Swift `SecureKey` enum with encrypted byte arrays.
+7. Build `.secure-keys/SecureKeys.xcframework`.
+8. Remove temporary Swift package files.
+
+## Local Configuration With Keychain
+
+The default Keychain service and account identifier is `secure-keys`.
+
+Store the list of secret names:
 
 ```bash
 security add-generic-password -a "secure-keys" -s "secure-keys" -w "githubToken,apiKey"
 ```
 
-If you need to use a custom Keychain identifier, set the `SECURE_KEYS_IDENTIFIER` environment variable:
+Store each secret value under the same Keychain service:
 
 ```bash
-export SECURE_KEYS_IDENTIFIER="your-keychain-identifier"
-
-security add-generic-password -a "$SECURE_KEYS_IDENTIFIER" -s "$SECURE_KEYS_IDENTIFIER" -w "githubToken,apiKey"
-```
-
-2. Add new keys to the Keychain as needed:
-
-```bash
+security add-generic-password -a "secure-keys" -s "githubToken" -w "your-github-token"
 security add-generic-password -a "secure-keys" -s "apiKey" -w "your-api-key"
 ```
 
-Or with a custom Keychain identifier:
+Use a custom Keychain identifier:
 
 ```bash
+export SECURE_KEYS_IDENTIFIER="my-app-secrets"
+
+security add-generic-password -a "$SECURE_KEYS_IDENTIFIER" -s "$SECURE_KEYS_IDENTIFIER" -w "githubToken,apiKey"
+security add-generic-password -a "$SECURE_KEYS_IDENTIFIER" -s "githubToken" -w "your-github-token"
 security add-generic-password -a "$SECURE_KEYS_IDENTIFIER" -s "apiKey" -w "your-api-key"
 ```
 
-#### From Environment Variables
+Use a custom delimiter:
 
-You can define the keys in the `.env` file or export the keys as environment variables.
+```bash
+export SECURE_KEYS_DELIMITER="|"
+security add-generic-password -a "secure-keys" -s "secure-keys" -w "githubToken|apiKey"
+```
+
+## CI Configuration With Environment Variables
+
+CI mode is enabled automatically when common CI variables are present, including `CI=true` and `GITHUB_ACTIONS=true`. You can also force it:
+
+```bash
+secure-keys --ci
+```
+
+Set the list of secret names in `SECURE_KEYS_IDENTIFIER`:
 
 ```bash
 export SECURE_KEYS_IDENTIFIER="github-token,api_key,firebaseToken"
+```
+
+Set each secret value as an environment variable. Secret names are looked up exactly first, then normalized by converting `-` to `_` and uppercasing.
+
+```bash
 export GITHUB_TOKEN="your-github-token"
 export API_KEY="your-api-key"
 export FIREBASETOKEN="your-firebase-token"
 ```
 
-> Important: Key names should be formatted in uppercase with `-` replaced by `_` (e.g., `github-token` becomes `GITHUB_TOKEN`).
+The `SECURE_KEYS_` prefix is also supported for secret values:
 
-##### Custom Delimiter
+```bash
+export SECURE_KEYS_API_KEY="your-api-key"
+```
 
-If you prefer a delimiter other than the default comma, you can set a custom delimiter using the `SECURE_KEYS_DELIMITER` environment variable:
+You can store the list in a dedicated environment variable instead:
+
+```bash
+export CUSTOM_SECRET_LIST="github-token,api_key"
+secure-keys --ci --identifier CUSTOM_SECRET_LIST
+```
+
+Use a custom delimiter in CI:
 
 ```bash
 export SECURE_KEYS_DELIMITER="|"
 export SECURE_KEYS_IDENTIFIER="github-token|api_key|firebaseToken"
 ```
 
-### Step 2: Generate the SecureKeys.xcframework
-
-After configuring your keys, generate the `SecureKeys.xcframework` by running the following command in your iOS project root directory:
-
-```bash
-secure-keys
-```
-
-Using Bundler:
-
-```bash
-bundle exec secure-keys
-```
-
-To get more information about the command, you can use the `--help` option.
+## CLI Reference
 
 ```bash
 secure-keys --help
+```
 
-# Output
-
+```text
 Usage: secure-keys [--options]
 
     -h, --help                       Use the provided commands to select the params
@@ -143,172 +169,357 @@ Usage: secure-keys [--options]
         --xcframework                Add the xcframework to the target
 ```
 
-To avoid defining the `SECURE_KEYS_IDENTIFIER` and `SECURE_KEYS_DELIMITER` env variables, you can use the `--identifier` and `--delimiter` options.
+Examples:
 
 ```bash
-secure-keys --identifier "your-keychain-or-env-variable-identifier" --delimiter "|"
+secure-keys
+secure-keys --verbose
+secure-keys --ci --identifier CUSTOM_SECRET_LIST
+secure-keys --identifier "my-app-secrets" --delimiter "|"
+secure-keys -i "my-app-secrets" -d "|"
 ```
 
-Also, you can use the short options:
+## Xcode Integration
+
+Generate the framework only:
 
 ```bash
-secure-keys -i "your-keychain-or-env-variable-identifier" -d "|"
+secure-keys
 ```
 
-### Step 3: Integrate SecureKeys.xcframework into Your iOS Project
-
-#### Automatically
-
-> [!IMPORTANT]
-> You can see more information about the command using the `--help` option.
-
-```bash
-secure-keys --xcframework --help
-
-# Output
-Usage: secure-keys --xcframework [--options]
-
-    -h, --help                       Use the provided commands to select the params
-        --[no-]add                   Add the SecureKeys XCFramework to the Xcode project (default: true)
-    -t, --target TARGET              The target to add the xcframework
-    -r, --replace                    Replace the existing xcframework in the Xcode project (default: false)
-    -x, --xcodeproj XCODEPROJ        The Xcode project path (default: the first found Xcode project)
-```
-
-From the `secure-keys` command, you can use the `--xcframework` option to add the `SecureKeys.xcframework` to the iOS project.
+Generate and add the framework to an Xcode target:
 
 ```bash
 secure-keys --xcframework --target "YourTargetName" --add
 ```
 
-If you want to add the `SecureKeys.xcframework` to an iOS that already contains the `SecureKeys` source code, you can use the `--replace` option.
+Replace an existing framework reference:
 
 ```bash
 secure-keys --xcframework --target "YourTargetName" --replace
 ```
 
-> [!IMPORTANT]
-> If you don't need to generate the `SecureKeys.xcframework` every time, you can use the `--no-generate` option.
+Add an already generated framework without rebuilding:
 
 ```bash
 secure-keys --no-generate --xcframework --target "YourTargetName"
 ```
 
-Also, you can specify your Xcode project path using the `--xcodeproj` option.
+Select a project explicitly:
 
 ```bash
-secure-keys --xcframework --target "YourTargetName" --xcodeproj "/path/to/your/project.xcodeproj"
+secure-keys --xcframework --target "YourTargetName" --xcodeproj "/path/to/YourProject.xcodeproj"
 ```
 
-> [!IMPORTANT]
-> By default, the xcodeproj path would be the first found Xcode project.
-
-If you don't want to use the CLI options, you can configure some env variable to interact with the `secure-keys` command.
+The same options can be configured with environment variables:
 
 ```bash
-# e.g (Large version)
 export SECURE_KEYS_XCFRAMEWORK_TARGET="YourTargetName"
 export SECURE_KEYS_XCFRAMEWORK_ADD=true
-export SECURE_KEYS_XCFRAMEWORK_REPLACE=true
-export SECURE_KEYS_XCFRAMEWORK_XCODEPROJ="/path/to/your/project.xcodeproj"
+export SECURE_KEYS_XCFRAMEWORK_REPLACE=false
+export SECURE_KEYS_XCFRAMEWORK_XCODEPROJ="/path/to/YourProject.xcodeproj"
 
-# e.g (Short version)
-export XCFRAMEWORK_TARGET="YourTargetName"
-export XCFRAMEWORK_ADD=true
-export XCFRAMEWORK_REPLACE=true
-export XCFRAMEWORK_XCODEPROJ="/path/to/your/project.xcodeproj"
-
-# Run the command
 secure-keys --xcframework
 ```
 
-#### Manually
-
-1. From the iOS project, click on the project target, select the `General` tab, and scroll down to the `Frameworks, Libraries, and Embedded Content` section.
-
-![Project Target](https://derian-cordoba.github.io/secure-keys/assets/add-xcframework-to-ios-project/first-step.png)
-
-2. Click on the `Add Other...` button and click on the `Add Files...` option.
-
-![Add Files](https://derian-cordoba.github.io/secure-keys/assets/add-xcframework-to-ios-project/second-step.png)
-
-3. Navigate to the `Securekeys` directory and select the `SecureKeys.xcframework` folder.
-
-![Select SecureKeys.xcframework](https://derian-cordoba.github.io/secure-keys/assets/add-xcframework-to-ios-project/third-step.png)
-
-> Now the `SecureKeys.xcframework` is added to the iOS project.
-
-![Select SecureKeys.xcframework](https://derian-cordoba.github.io/secure-keys/assets/add-xcframework-to-ios-project/third-step-result.png)
-
-4. Click on the `Build settings` tab and search for the `Search Paths` section.
-
-![Search Paths](https://derian-cordoba.github.io/secure-keys/assets/add-xcframework-to-ios-project/fourth-step.png)
-
-> Add the path to the `SecureKeys.xcframework` in the `Framework Search Paths` section.
+Short environment variable names are also supported:
 
 ```bash
-$(inherited)
-$(SRCROOT)/.secure-keys
+export XCFRAMEWORK_TARGET="YourTargetName"
+export XCFRAMEWORK_ADD=true
+export XCFRAMEWORK_REPLACE=false
+export XCFRAMEWORK_XCODEPROJ="/path/to/YourProject.xcodeproj"
 ```
 
-### Step 4: Use the Keys in Your Code
+### Manual Xcode Setup
 
-In your iOS code, you can now use the Keys framework to securely retrieve your keys:
+If you do not use `--xcframework`, add the framework manually:
+
+1. Open the Xcode project target.
+2. Open `General`.
+3. Add `.secure-keys/SecureKeys.xcframework` to `Frameworks, Libraries, and Embedded Content`.
+4. Open `Build Settings`.
+5. Add `$(SRCROOT)/.secure-keys` to `Framework Search Paths`.
+
+## Swift API
+
+The generated framework exposes `SecureKey`, `key(for:)`, `key(_:)`, and a `String.secretKey` helper.
 
 ```swift
 import SecureKeys
 
-// Using the key directly
 let apiKey = SecureKey.apiKey.decryptedValue
-
-// Accessing a key by enum case
-let someKey: String = key(for: .someKey)
-
-// Another way to access the key
-let someKey: String = key(.someKey)
-
-// Using the raw value to access the key
-let apiKey: SecureKey = "apiKey".secretKey
-
-// Accessing decrypted value from the raw key
-let apiKey: String = "apiKey".secretKey.decryptedValue
-
-// Using the `key` method to retrieve the key
-let apiKey: String = .key(for: .apiKey)
+let githubToken = key(for: .githubToken)
+let sameGithubToken = key(.githubToken)
+let keyFromString: SecureKey = "apiKey".secretKey
+let valueFromString = "apiKey".secretKey.decryptedValue
+let staticValue = String.key(for: .apiKey)
 ```
 
-## How It Works
+Generated key names are camelized for Swift enum cases:
 
-When the script is executed, it follows these steps:
+```text
+api-key      -> SecureKey.apiKey
+githubToken  -> SecureKey.githubToken
+```
 
-1. A `.secure-keys` directory is created.
-2. A temporary Swift Package is generated within the `.secure-keys` directory.
-3. The Keys source code is copied into the temporary Swift Package.
-4. The `SecureKeys.xcframework` is generated using the temporary Swift Package.
-5. The temporary Swift Package is removed.
+## Output Files
 
-```swift
-public enum SecureKey {
+The main output is:
 
-    // MARK: - Cases
+```text
+.secure-keys/SecureKeys.xcframework
+```
 
-    case apiKey
-    case someKey
-    case unknown
+Temporary Swift package and build files are created under `.secure-keys` during generation and removed after the framework is built.
 
-    // MARK: - Properties
+## Security Notes
 
-    /// The decrypted value of the key
-    public var decryptedValue: String {
-        switch self {
-            case .apiKey: [1, 2, 4].decrypt(key: [248, 53, 26], iv: [148, 55, 47], tag: [119, 81])
-            case .someKey: [1, 2, 4].decrypt(key: [248, 53, 26], iv: [148, 55, 47], tag: [119, 81])
-            case .unknown: fatalError("Unknown key \(rawValue)")
-        }
-    }
-}
+- Do not commit `.secure-keys/SecureKeys.xcframework` unless your release process intentionally requires it.
+- Do not commit `.env` files or raw secret values.
+- Treat app-bundled secrets as obfuscation, not as a perfect security boundary. A determined attacker can inspect a shipped app binary.
+- Prefer server-side secret usage for highly sensitive credentials.
+- Use environment-specific keys for development, staging, and production.
+- Rotate keys regularly and revoke leaked credentials immediately.
+
+## Secret Scanning and Validation
+
+`secure-keys` ships both a CLI and a Ruby API for validating individual secret values and scanning source files or git diffs for accidentally exposed credentials.
+
+### CLI
+
+Scan the current directory:
+
+```bash
+secure-keys validate scan
+```
+
+Scan a specific path:
+
+```bash
+secure-keys validate scan ./src
+```
+
+Scan only staged git changes (useful as a pre-commit hook):
+
+```bash
+secure-keys validate scan --staged
+```
+
+Save the report as JSON:
+
+```bash
+secure-keys validate scan --output report.json
+```
+
+Override the file extensions and exclusions:
+
+```bash
+secure-keys validate scan --extensions .rb,.swift,.go --excludes vendor,tmp,build
+```
+
+Enable verbose output:
+
+```bash
+secure-keys validate scan --verbose
+```
+
+Full option reference:
+
+```text
+Usage: secure-keys validate scan [path] [--options]
+
+    -h, --help          Show help for the scan subcommand
+        --staged        Scan staged git changes instead of a directory (default: false)
+    -o, --output FILE   Save the scan report as JSON to FILE
+        --extensions    Comma-separated file extensions to scan (e.g. .rb,.swift)
+        --excludes      Comma-separated directory names to exclude from the scan
+        --verbose       Enable verbose output (default: false)
+```
+
+Exit codes:
+
+| Code | Meaning |
+|---|---|
+| `0` | Scan completed with no findings |
+| `1` | One or more secrets were detected |
+
+### Validating a Secret
+
+`SecureKeys::Validation::Validator` checks a single value against a set of security rules and returns a `ValidationResult`.
+
+```ruby
+require 'validation/validator'
+
+validator = SecureKeys::Validation::Validator.new
+result    = validator.validate(key: :api_key, value: ENV['API_KEY'])
+
+puts result.summary          # ✅ api_key — no issues  /  ❌ api_key — 2 issue(s)
+puts result.valid?           # true / false
+puts result.severity_level   # :ok | :warning | :error | :critical
+result.print                 # formatted report to stdout
+```
+
+Available validation options:
+
+| Option | Type | Default | Description |
+|---|---|---|---|
+| `check_entropy` | Boolean | `false` | Flag low-entropy (repetitive) values |
+| `allow_production` | Boolean | `false` | Skip the production-key warning |
+| `warn_on_pattern` | Boolean | `false` | Emit an informational notice when a pattern matches |
+
+```ruby
+result = validator.validate(
+  key: :stripe_key,
+  value: ENV['STRIPE_KEY'],
+  options: { check_entropy: true, warn_on_pattern: true }
+)
+```
+
+Detect the type of a secret value:
+
+```ruby
+info = validator.detect_type(value: 'ghp_abc...')
+# => { type: :github_token, description: "GitHub Personal Access Token", severity: :high, ... }
+```
+
+Get provider-specific security recommendations:
+
+```ruby
+validator.recommendations(key: :githubToken)
+# => ["Use GitHub Personal Access Tokens with minimal required scopes", ...]
+```
+
+### Scanning Files for Exposed Secrets
+
+`SecureKeys::Validation::Scanner` scans source files or git diffs for credentials that match any of the 25+ built-in patterns.
+
+Scan a directory:
+
+```ruby
+require 'validation/scanner'
+
+scanner = SecureKeys::Validation::Scanner.new
+result  = scanner.scan_directory(path: '.')
+
+puts result.clean?        # true if no findings
+puts result.files_count   # number of files scanned
+
+result.findings.each { |f| puts f.to_s }
+result.print if !result.clean?
+```
+
+Scan only staged git changes (useful in a pre-commit hook):
+
+```ruby
+result = scanner.scan_git_diff                    # staged only (default)
+result = scanner.scan_git_diff(staged_only: false) # staged + unstaged
+```
+
+Customize the scan at initialization or per call:
+
+```ruby
+scanner = SecureKeys::Validation::Scanner.new(
+  options: {
+    extensions: ['.rb', '.swift', '.go'],
+    excludes:   ['vendor', 'node_modules', '.git'],
+    max_depth:  5
+  }
+)
+```
+
+Filter findings by severity:
+
+```ruby
+result.by_severity(severity: :critical).each { |f| puts f.to_s }
+```
+
+### Detected Patterns
+
+The scanner recognizes the following secret types out of the box:
+
+| Pattern | Severity |
+|---|---|
+| GitHub personal / OAuth / App / refresh token | high |
+| AWS access key ID | critical |
+| AWS secret access key | critical |
+| Google Cloud API key | high |
+| Google OAuth token | high |
+| Stripe secret key (live / test) | critical |
+| Stripe publishable / restricted key | medium / high |
+| Slack bot / app / webhook token | high / medium |
+| JWT token | medium |
+| PEM / RSA / EC / OpenSSH private key | critical |
+| Generic API key assignment | medium |
+| Generic secret / password assignment | medium |
+| Firebase API key | medium |
+| Twilio API key / Account SID | high / low |
+| SendGrid API key | high |
+| Mailchimp API key | medium |
+| Square access token | high |
+| PayPal Braintree access token | critical |
+| Heroku API key | high |
+| Base64-encoded secret | low |
+| Suspicious assignment (catch-all) | low |
+
+### Validation Configuration
+
+All thresholds can be overridden with environment variables. Both the bare name and the `SECURE_KEYS_` prefix are supported.
+
+| Environment variable | Default | Description |
+|---|---|---|
+| `SECURE_KEYS_API_KEY_LENGTH` | `20` | Minimum API key length |
+| `SECURE_KEYS_TOKEN_LENGTH` | `20` | Minimum token length |
+| `SECURE_KEYS_SECRET_LENGTH` | `16` | Minimum secret length |
+| `SECURE_KEYS_PASSWORD_LENGTH` | `12` | Minimum password length |
+| `SECURE_KEYS_KEY_LENGTH` | `16` | Minimum generic key length |
+| `SECURE_KEYS_SCAN_EXTENSIONS` | `.swift,.rb,.py,.js,...` | Comma-separated file extensions to scan |
+| `SECURE_KEYS_SCAN_EXCLUDES` | `.git,node_modules,Pods,...` | Comma-separated names to exclude |
+| `SECURE_KEYS_MAX_SCAN_DEPTH` | `10` | Maximum directory traversal depth |
+| `SECURE_KEYS_MIN_ENTROPY_THRESHOLD` | `3.0` | Shannon entropy threshold for `check_entropy` |
+
+## Troubleshooting
+
+`Error fetching the key from Keychain`
+
+Verify the Keychain service, account, and identifier values. For the default configuration, the list must be stored with account `secure-keys` and service `secure-keys`.
+
+`Error fetching the key from ENV variables`
+
+Verify CI mode is enabled and that each configured key has a matching environment variable. For example, `github-token` maps to `GITHUB_TOKEN`.
+
+`xcodebuild` fails
+
+Verify Xcode command line tools are installed and selected:
+
+```bash
+xcode-select -p
+```
+
+`SecureKeys.xcframework` is not found by Xcode
+
+Verify `$(SRCROOT)/.secure-keys` is present in `Framework Search Paths` and that the framework is attached to the correct target.
+
+## Development
+
+Install dependencies:
+
+```bash
+bundle install
+```
+
+Run the test suite:
+
+```bash
+bundle exec rspec
+```
+
+Run the local CLI:
+
+```bash
+bundle exec ./bin/secure-keys --help
 ```
 
 ## License
 
-This project is licensed under the MIT License. See the [License](LICENSE) file for more information.
+This project is licensed under the MIT [License](../LICENSE).
