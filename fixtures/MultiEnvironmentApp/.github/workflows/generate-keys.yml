@@ -1,0 +1,86 @@
+name: Generate SecureKeys
+
+on:
+  push:
+    branches: [main, staging]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Target environment (staging or production)"
+        required: true
+        default: "staging"
+        type: choice
+        options:
+          - staging
+          - production
+
+jobs:
+  # Staging
+  generate-staging:
+    name: Generate (staging)
+    runs-on: macos-latest
+    if: github.ref == 'refs/heads/staging' || (github.event_name == 'workflow_dispatch' && inputs.environment == 'staging')
+    environment: staging
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.3"
+          bundler-cache: true
+
+      - name: Install secure-keys
+        run: gem install secure-keys
+
+      - name: Generate staging xcframework
+        # Secrets are injected as environment variables from the GitHub Actions
+        # "staging" environment. The .secure-keys.yml source: environment flag
+        # tells secure-keys to read from env vars instead of the Keychain.
+        env:
+          apiKey: ${{ secrets.STAGING_API_KEY }}
+          analyticsKey: ${{ secrets.STAGING_ANALYTICS_KEY }}
+          featureFlagKey: ${{ secrets.STAGING_FEATURE_FLAG_KEY }}
+        run: secure-keys env generate staging
+
+      - name: Upload staging xcframework
+        uses: actions/upload-artifact@v4
+        with:
+          name: SecureKeys-staging
+          path: .secure-keys/staging/SecureKeys.xcframework
+          retention-days: 7
+
+  # MARK: Production
+  generate-production:
+    name: Generate (production)
+    runs-on: macos-latest
+    if: github.ref == 'refs/heads/main' || (github.event_name == 'workflow_dispatch' && inputs.environment == 'production')
+    environment: production
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.3"
+          bundler-cache: true
+
+      - name: Install secure-keys
+        run: gem install secure-keys
+
+      - name: Generate production xcframework
+        env:
+          apiKey: ${{ secrets.PROD_API_KEY }}
+          analyticsKey: ${{ secrets.PROD_ANALYTICS_KEY }}
+        run: secure-keys env generate production
+
+      - name: Upload production xcframework
+        uses: actions/upload-artifact@v4
+        with:
+          name: SecureKeys-production
+          path: .secure-keys/production/SecureKeys.xcframework
+          retention-days: 30

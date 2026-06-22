@@ -1,0 +1,30 @@
+environments:
+  development:
+    identifier: multi-env-app-dev
+    delimiter: ","
+    source: keychain
+    keys:
+      - apiKey
+      - debugToken
+      - analyticsKey
+      - featureFlagKey
+    output: .secure-keys/development
+
+  staging:
+    identifier: multi-env-app-staging
+    delimiter: ","
+    source: environment
+    keys:
+      - apiKey
+      - analyticsKey
+      - featureFlagKey
+    output: .secure-keys/staging
+
+  production:
+    identifier: multi-env-app-prod
+    delimiter: ","
+    source: environment
+    keys:
+      - apiKey
+      - analyticsKey
+    output: .secure-keys/production
