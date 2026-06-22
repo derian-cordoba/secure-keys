@@ -1,5 +1,6 @@
 #!/usr/bin/env ruby
 
+require 'fileutils'
 require_relative '../config'
 require_relative '../console/arguments/generate/handler'
 require_relative '../../core/console/arguments/handler'
@@ -79,6 +80,23 @@ module SecureKeys
 
           apply_environment(env:)
           Core::Generator.new.generate
+          place_xcframework(env:)
+        end
+
+        # Move the generated xcframework from the default path to the environment's
+        # configured output directory so that each environment lands in its own folder
+        # (e.g. .secure-keys/staging/SecureKeys.xcframework).
+        # @param env [EnvironmentConfig] The environment whose output path should be used
+        # @return [void]
+        def place_xcframework(env:)
+          default_path = File.join(SecureKeys::Swift::KEYS_DIRECTORY, SecureKeys::Swift::XCFRAMEWORK_DIRECTORY)
+          target_path  = File.join(env.output, SecureKeys::Swift::XCFRAMEWORK_DIRECTORY)
+
+          return if default_path == target_path
+          return unless File.exist?(default_path)
+
+          FileUtils.mkdir_p(env.output)
+          FileUtils.mv(default_path, target_path)
         end
 
         # Override the core argument handler with environment-specific values so that
