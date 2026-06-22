@@ -1,0 +1,14 @@
+# Generated SecureKeys xcframeworks — never commit these
+.secure-keys/
+
+# Xcode
+*.xcuserstate
+xcuserdata/
+DerivedData/
+*.hmap
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# macOS
+.DS_Store

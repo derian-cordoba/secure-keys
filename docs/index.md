@@ -179,6 +179,189 @@ secure-keys --identifier "my-app-secrets" --delimiter "|"
 secure-keys -i "my-app-secrets" -d "|"
 ```
 
+## Multi-Environment Support
+
+`secure-keys env` manages distinct secret sets for multiple environments — development, staging, and production — each with its own identifier, key list, secret source, and output path. Configuration is driven by a `.secure-keys.yml` file in your project root.
+
+### Configuration file
+
+Create a default configuration file:
+
+```bash
+secure-keys env init
+```
+
+This writes `.secure-keys.yml` to the current directory with a development/staging/production template. Edit the file to match your project's secrets:
+
+```yaml
+environments:
+  development:
+    identifier: my-app-dev    # Keychain service name
+    delimiter: ","
+    source: keychain           # Read from macOS Keychain
+    keys:
+      - apiKey
+      - debugToken
+      - analyticsKey
+    output: .secure-keys/development
+
+  staging:
+    identifier: my-app-staging
+    delimiter: ","
+    source: environment        # Read from environment variables
+    keys:
+      - apiKey
+      - analyticsKey
+    output: .secure-keys/staging
+
+  production:
+    identifier: my-app-prod
+    delimiter: ","
+    source: environment
+    keys:
+      - apiKey
+      - analyticsKey
+    output: .secure-keys/production
+```
+
+| Field | Purpose |
+|---|---|
+| `identifier` | Keychain service name (local) or environment variable holding the key list (CI) |
+| `delimiter` | Character that separates key names in the Keychain value (default: `,`) |
+| `source` | `keychain` for local development, `environment` for CI/CD |
+| `keys` | List of secret names to encrypt into the xcframework |
+| `output` | Directory where `SecureKeys.xcframework` is written |
+
+### Local development
+
+Install development secrets into the Keychain once:
+
+```bash
+IDENTIFIER="my-app-dev"
+
+security add-generic-password -a "$IDENTIFIER" -s "$IDENTIFIER" \
+  -w "apiKey,debugToken,analyticsKey" -U
+
+security add-generic-password -a "$IDENTIFIER" -s "apiKey"       -w "<your-api-key>"       -U
+security add-generic-password -a "$IDENTIFIER" -s "debugToken"   -w "<your-debug-token>"   -U
+security add-generic-password -a "$IDENTIFIER" -s "analyticsKey" -w "<your-analytics-key>" -U
+```
+
+Generate the development xcframework:
+
+```bash
+secure-keys env generate development
+```
+
+The framework is written to `.secure-keys/development/SecureKeys.xcframework`.
+
+### CI/CD
+
+For environments with `source: environment`, export the key list and each secret value as environment variables before running `generate`:
+
+```bash
+export MY_APP_STAGING="apiKey,analyticsKey"
+export apiKey="your-staging-api-key"
+export analyticsKey="your-staging-analytics-key"
+
+secure-keys env generate staging
+```
+
+The key-list variable name is the `identifier` value with `-` replaced by `_` and uppercased (e.g. `my-app-staging` → `MY_APP_STAGING`). Individual secret values follow the same lookup order as the core CLI: exact name first, then normalized (`-` → `_`, uppercased), then with the `SECURE_KEYS_` prefix.
+
+### Subcommands
+
+```text
+Usage: secure-keys env [subcommand] [--options]
+
+    -h, --help                       Show help for the env command
+
+Subcommands:
+  init              Create a default .secure-keys.yml configuration file
+  list              List all configured environments
+  generate [name]   Generate an xcframework for the given environment
+  diff <a> <b>      Compare two configured environments
+```
+
+#### `env init`
+
+```bash
+secure-keys env init
+```
+
+Creates `.secure-keys.yml` in the current directory from a default template. Exits with code 1 if the file already exists.
+
+#### `env list`
+
+```bash
+secure-keys env list
+```
+
+Prints all environment names defined in `.secure-keys.yml`.
+
+#### `env generate`
+
+```bash
+# Generate for a specific environment
+secure-keys env generate development
+secure-keys env generate staging
+secure-keys env generate production
+
+# Generate for all configured environments at once
+secure-keys env generate --all
+```
+
+Each environment's xcframework is written to its configured `output` directory. Running `--all` generates one xcframework per environment without overwriting outputs from previous environments.
+
+```text
+Usage: secure-keys env generate [name] [--options]
+
+    -h, --help    Show help for the env generate subcommand
+        --all     Generate xcframeworks for all configured environments (default: false)
+```
+
+#### `env diff`
+
+```bash
+secure-keys env diff development production
+```
+
+Compares two environments and reports differences in their configuration and key lists. Useful before a release to confirm that staging and production are in sync.
+
+```text
+Comparing: development → production
+──────────────────────────────────────────────────────────────────────
+    Configuration: identical
+
+    Keys (development: 3, production: 2):
+        ✓ apiKey
+        ✓ analyticsKey
+        − debugToken (only in development)
+──────────────────────────────────────────────────────────────────────
+```
+
+### Output structure
+
+Each `generate` call writes its xcframework to the `output` path defined for that environment:
+
+```text
+.secure-keys/
+├── development/
+│   └── SecureKeys.xcframework
+├── staging/
+│   └── SecureKeys.xcframework
+└── production/
+    └── SecureKeys.xcframework
+```
+
+Link the appropriate xcframework in Xcode under **General → Frameworks, Libraries, and Embedded Content**. Use one Xcode scheme per environment, each pointing to the matching `.secure-keys/<environment>/SecureKeys.xcframework`.
+
+Add `.secure-keys/` to `.gitignore` to avoid committing generated xcframeworks:
+
+```gitignore
+.secure-keys/
+```
+
 ## Xcode Integration
 
 Generate the framework only:

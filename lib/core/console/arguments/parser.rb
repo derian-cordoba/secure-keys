@@ -31,6 +31,10 @@ module SecureKeys
           # Known positional subcommands mapped to their handler lambdas.
           # Each lambda is expected to handle its own output and exit.
           SUBCOMMANDS = {
+            'env' => lambda {
+              require_relative '../../../environment/console/arguments/parser'
+              SecureKeys::Environment::Console::Argument::Parser.new.execute
+            },
             'validate' => lambda {
               require_relative '../../../validation/console/arguments/parser'
               Validation::Console::Argument::Parser.new.execute

@@ -1,0 +1,305 @@
+name: Fixture Smoke Tests
+
+# Cancel any in-progress run for the same ref so stale smoke tests don't pile up.
+concurrency:
+  group: fixture-smoke-tests-${{ github.ref }}
+  cancel-in-progress: true
+
+# Run every Monday and Friday at 09:00 UTC, or on demand.
+# workflow_dispatch lets you target a single fixture or run all of them.
+on:
+  schedule:
+    - cron: "0 9 * * 1,5" # Monday and Friday
+
+  workflow_dispatch:
+    inputs:
+      fixture:
+        description: "Fixture to smoke-test"
+        required: true
+        default: all
+        type: choice
+        options:
+          - all
+          - MultiEnvironmentApp
+          - SwiftUIApp+Backend
+          - UIKitFirebaseApp
+      runs-on:
+        description: "GitHub runner label (leave blank for default)"
+        required: false
+        type: string
+
+jobs:
+  multi-environment-app:
+    name: "Smoke · MultiEnvironmentApp"
+    runs-on: ${{ inputs.runs-on || vars.RUNS_ON || 'macos-latest' }}
+    if: >
+      github.event_name == 'schedule' ||
+      inputs.fixture == 'all' ||
+      inputs.fixture == 'MultiEnvironmentApp'
+
+    defaults:
+      run:
+        working-directory: fixtures/MultiEnvironmentApp
+
+    env:
+      # Point Bundler at the repo-root Gemfile (which includes the local gemspec).
+      # This ensures every `bundle exec secure-keys` call uses the branch code, not
+      # the published gem from RubyGems — critical for testing unreleased subcommands
+      # like `env`. The absolute path is stable across cd into temp dirs.
+      BUNDLE_GEMFILE: ${{ github.workspace }}/Gemfile
+
+      # Staging secrets (source: environment) — fake values for smoke testing
+      MULTI_ENV_APP_STAGING: "apiKey,analyticsKey,featureFlagKey"
+      apiKey: "smoke-api-key"
+      analyticsKey: "smoke-analytics-key"
+      featureFlagKey: "smoke-feature-flag-key"
+
+      # Production secrets
+      MULTI_ENV_APP_PROD: "apiKey,analyticsKey"
+      # apiKey and analyticsKey already exported above
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.3.6"
+          bundler-cache: false
+
+      # Install all gems from the repo-root Gemfile.lock, including the local
+      # secure-keys gemspec. Using `bundle exec` below ensures the branch code
+      # is exercised rather than any previously published gem version.
+      - name: Install dependencies
+        working-directory: .
+        run: bundle install
+
+      - name: "[config] .secure-keys.yml is valid YAML"
+        run: |
+          ruby -ryaml -e "
+            data = YAML.load_file('.secure-keys.yml')
+            abort 'Missing environments key' unless data.key?('environments')
+            envs = data['environments'].keys
+            abort 'Expected development' unless envs.include?('development')
+            abort 'Expected staging'     unless envs.include?('staging')
+            abort 'Expected production'  unless envs.include?('production')
+            puts \"✓ .secure-keys.yml is valid (environments: #{envs.join(', ')})\"
+          "
+
+      - name: "[list] exits 0 and shows all environments"
+        run: |
+          output=$(bundle exec secure-keys env list)
+          echo "$output"
+          echo "$output" | grep -q "development" || (echo "❌ 'development' not in output" && exit 1)
+          echo "$output" | grep -q "staging"     || (echo "❌ 'staging' not in output"     && exit 1)
+          echo "$output" | grep -q "production"  || (echo "❌ 'production' not in output"  && exit 1)
+          echo "✓ env list OK"
+
+      - name: "[diff] development vs production exits 0"
+        run: bundle exec secure-keys env diff development production
+
+      - name: "[diff] output includes both environment names"
+        run: |
+          output=$(bundle exec secure-keys env diff development production)
+          echo "$output"
+          echo "$output" | grep -q "development" || (echo "❌ 'development' not in diff output" && exit 1)
+          echo "$output" | grep -q "production"  || (echo "❌ 'production' not in diff output"  && exit 1)
+          echo "✓ env diff output OK"
+
+      - name: "[diff] unknown environment exits 1"
+        run: |
+          bundle exec secure-keys env diff development nonexistent 2>&1 && exit 1 || echo "✓ exits 1 for unknown environment"
+
+      - name: "[init] creates .secure-keys.yml from default template"
+        run: |
+          tmp=$(mktemp -d)
+          cd "$tmp"
+          bundle exec secure-keys env init
+          test -f .secure-keys.yml || (echo "❌ .secure-keys.yml not created" && exit 1)
+          echo "✓ env init created .secure-keys.yml"
+          cd - && rm -rf "$tmp"
+
+      - name: "[init] exits 1 when .secure-keys.yml already exists"
+        run: |
+          tmp=$(mktemp -d)
+          cd "$tmp"
+          bundle exec secure-keys env init 2>&1
+          bundle exec secure-keys env init 2>&1 && exit 1 || echo "✓ exits 1 on duplicate init"
+          cd - && rm -rf "$tmp"
+
+      - name: "[generate] staging xcframework is produced"
+        run: |
+          bundle exec secure-keys env generate staging
+          test -d .secure-keys/staging/SecureKeys.xcframework \
+            || (echo "❌ .secure-keys/staging/SecureKeys.xcframework not found" && exit 1)
+          echo "✓ staging xcframework generated"
+
+      - name: "[generate] production xcframework is produced"
+        run: |
+          bundle exec secure-keys env generate production
+          test -d .secure-keys/production/SecureKeys.xcframework \
+            || (echo "❌ .secure-keys/production/SecureKeys.xcframework not found" && exit 1)
+          echo "✓ production xcframework generated"
+
+      - name: "[generate] unknown environment exits 1"
+        run: |
+          bundle exec secure-keys env generate nonexistent 2>&1 && exit 1 || echo "✓ exits 1 for unknown environment"
+
+      - name: "[generate] missing name without --all exits 1"
+        run: |
+          bundle exec secure-keys env generate 2>&1 && exit 1 || echo "✓ exits 1 when name is missing"
+
+      - name: Upload generated xcframeworks
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: smoke-multi-environment-app
+          path: fixtures/MultiEnvironmentApp/.secure-keys/**/SecureKeys.xcframework
+          if-no-files-found: warn
+          retention-days: 3
+
+  swiftui-backend:
+    name: "Smoke · SwiftUIApp+Backend"
+    runs-on: ${{ inputs.runs-on || vars.RUNS_ON || 'macos-latest' }}
+    if: >
+      github.event_name == 'schedule' ||
+      inputs.fixture == 'all' ||
+      inputs.fixture == 'SwiftUIApp+Backend'
+
+    defaults:
+      run:
+        working-directory: fixtures/SwiftUIApp+Backend
+
+    env:
+      BUNDLE_GEMFILE: ${{ github.workspace }}/Gemfile
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.3.6"
+          bundler-cache: false
+
+      - name: Install dependencies
+        working-directory: .
+        run: bundle install
+
+      - name: "[structure] required files exist"
+        run: |
+          files=(
+            "README.md"
+            "setup"
+            "client/SwiftUIApp.xcodeproj/project.pbxproj"
+            "client/SwiftUIApp/ContentView.swift"
+            "client/SwiftUIApp/SwiftUIAppApp.swift"
+            "backend/src/app.js"
+            "backend/package.json"
+          )
+          for f in "${files[@]}"; do
+            test -f "$f" || (echo "❌ Missing: $f" && exit 1)
+            echo "  ✓ $f"
+          done
+          echo "✓ All required files present"
+
+      - name: "[structure] setup script is executable"
+        run: |
+          test -x setup || (echo "❌ setup is not executable" && exit 1)
+          echo "✓ setup is executable"
+
+      - name: "[structure] setup script passes syntax check"
+        run: bash -n setup && echo "✓ setup syntax OK"
+
+      - name: "[cli] secure-keys --help exits 0"
+        run: bundle exec secure-keys --help
+
+      - name: "[cli] secure-keys env --help exits 0"
+        run: bundle exec secure-keys env --help
+
+  uitkit-firebase:
+    name: "Smoke · UIKitFirebaseApp"
+    runs-on: ${{ inputs.runs-on || vars.RUNS_ON || 'macos-latest' }}
+    if: >
+      github.event_name == 'schedule' ||
+      inputs.fixture == 'all' ||
+      inputs.fixture == 'UIKitFirebaseApp'
+
+    defaults:
+      run:
+        working-directory: fixtures/UIKitFirebaseApp
+
+    env:
+      BUNDLE_GEMFILE: ${{ github.workspace }}/Gemfile
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.3.6"
+          bundler-cache: false
+
+      - name: Install dependencies
+        working-directory: .
+        run: bundle install
+
+      - name: "[structure] required files exist"
+        run: |
+          files=(
+            "README.md"
+            "UIKitApp.xcodeproj/project.pbxproj"
+            "UIKitApp/AppDelegate.swift"
+            "UIKitApp/ViewController.swift"
+            "UIKitApp/SceneDelegate.swift"
+            "UIKitApp/Info.plist"
+          )
+          for f in "${files[@]}"; do
+            test -f "$f" || (echo "❌ Missing: $f" && exit 1)
+            echo "  ✓ $f"
+          done
+          echo "✓ All required files present"
+
+      - name: "[cli] secure-keys --help exits 0"
+        run: bundle exec secure-keys --help
+
+      - name: "[cli] secure-keys env --help exits 0"
+        run: bundle exec secure-keys env --help
+
+      - name: "[cli] secure-keys validate --help exits 0"
+        run: bundle exec secure-keys validate --help
+
+  summary:
+    name: Smoke test summary
+    runs-on: ubuntu-latest
+    if: always()
+    needs:
+      - multi-environment-app
+      - swiftui-backend
+      - uitkit-firebase
+
+    steps:
+      - name: Report results
+        run: |
+          echo "## Fixture smoke test results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Fixture | Result |" >> $GITHUB_STEP_SUMMARY
+          echo "|---------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| MultiEnvironmentApp  | ${{ needs.multi-environment-app.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| SwiftUIApp+Backend   | ${{ needs.swiftui-backend.result }} |"       >> $GITHUB_STEP_SUMMARY
+          echo "| UIKitFirebaseApp     | ${{ needs.uitkit-firebase.result }} |"       >> $GITHUB_STEP_SUMMARY
+
+          if [[ "${{ contains(needs.*.result, 'failure') }}" == "true" ]]; then
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "> [!CAUTION]" >> $GITHUB_STEP_SUMMARY
+            echo "> One or more fixture smoke tests failed." >> $GITHUB_STEP_SUMMARY
+            exit 1
+          fi
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "> [!NOTE]" >> $GITHUB_STEP_SUMMARY
+          echo "> All fixture smoke tests passed." >> $GITHUB_STEP_SUMMARY
