@@ -42,6 +42,10 @@ jobs:
         working-directory: fixtures/MultiEnvironmentApp
 
     env:
+      # Prevent Bundler from picking up the repo-root Gemfile when secure-keys
+      # is installed as a standalone gem (bin/secure-keys calls bundler/setup).
+      BUNDLE_GEMFILE: /dev/null
+
       # Staging secrets (source: environment) — fake values for smoke testing
       MULTI_ENV_APP_STAGING: "apiKey,analyticsKey,featureFlagKey"
       apiKey: "smoke-api-key"
@@ -162,6 +166,9 @@ jobs:
       run:
         working-directory: fixtures/SwiftUIApp+Backend
 
+    env:
+      BUNDLE_GEMFILE: /dev/null
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -217,6 +224,9 @@ jobs:
     defaults:
       run:
         working-directory: fixtures/UIKitFirebaseApp
+
+    env:
+      BUNDLE_GEMFILE: /dev/null
 
     steps:
       - name: Checkout
