@@ -96,7 +96,8 @@ module SecureKeys
       def load!
         return unless File.exist?(@path)
 
-        data = YAML.load_file(@path)
+        raw  = File.read(@path)
+        data = YAML.safe_load(raw, permitted_classes: [], permitted_symbols: [], aliases: false) || {}
         return unless data.is_a?(Hash) && data['environments'].is_a?(Hash)
 
         data['environments'].each do |name, env_data|

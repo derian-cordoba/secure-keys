@@ -28,8 +28,8 @@ describe(SecureKeys::Environment::Console::Argument::Parser) do
 
     # when
     %w[-h --help].each do |option|
-      output_lines = `./bin/secure-keys env #{option}`.split("\n")
-                                                      .map(&:strip)
+      output_lines = `#{bin} env #{option}`.split("\n")
+                                           .map(&:strip)
 
       # then
       expect(output_lines).to(eq(expected_help))
@@ -40,7 +40,7 @@ describe(SecureKeys::Environment::Console::Argument::Parser) do
 
   it('should exit with code 1 for an unknown env subcommand') do
     # when
-    `./bin/secure-keys env unknown 2>&1`
+    `#{bin} env unknown 2>&1`
     exit_code = $CHILD_STATUS.exitstatus
 
     # then
@@ -166,8 +166,8 @@ describe(SecureKeys::Environment::Console::Argument::Parser) do
 
     # when
     %w[-h --help].each do |option|
-      output_lines = `./bin/secure-keys env generate #{option}`.split("\n")
-                                                               .map(&:strip)
+      output_lines = `#{bin} env generate #{option}`.split("\n")
+                                                    .map(&:strip)
 
       # then
       expect(output_lines).to(eq(expected_help))
