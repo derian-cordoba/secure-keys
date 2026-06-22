@@ -42,6 +42,12 @@ jobs:
         working-directory: fixtures/MultiEnvironmentApp
 
     env:
+      # Point Bundler at the repo-root Gemfile (which includes the local gemspec).
+      # This ensures every `bundle exec secure-keys` call uses the branch code, not
+      # the published gem from RubyGems — critical for testing unreleased subcommands
+      # like `env`. The absolute path is stable across cd into temp dirs.
+      BUNDLE_GEMFILE: ${{ github.workspace }}/Gemfile
+
       # Staging secrets (source: environment) — fake values for smoke testing
       MULTI_ENV_APP_STAGING: "apiKey,analyticsKey,featureFlagKey"
       apiKey: "smoke-api-key"
@@ -62,15 +68,12 @@ jobs:
           ruby-version: "3.3.6"
           bundler-cache: false
 
-      # bin/secure-keys calls `require 'bundler/setup'`, which looks upward for a
-      # Gemfile and tries to activate every locked gem. Installing the bundle first
-      # satisfies that requirement; secure-keys is then installed on top.
+      # Install all gems from the repo-root Gemfile.lock, including the local
+      # secure-keys gemspec. Using `bundle exec` below ensures the branch code
+      # is exercised rather than any previously published gem version.
       - name: Install dependencies
         working-directory: .
         run: bundle install
-
-      - name: Install secure-keys
-        run: gem install secure-keys --no-document
 
       - name: "[config] .secure-keys.yml is valid YAML"
         run: |
@@ -86,7 +89,7 @@ jobs:
 
       - name: "[list] exits 0 and shows all environments"
         run: |
-          output=$(secure-keys env list)
+          output=$(bundle exec secure-keys env list)
           echo "$output"
           echo "$output" | grep -q "development" || (echo "❌ 'development' not in output" && exit 1)
           echo "$output" | grep -q "staging"     || (echo "❌ 'staging' not in output"     && exit 1)
@@ -94,11 +97,11 @@ jobs:
           echo "✓ env list OK"
 
       - name: "[diff] development vs production exits 0"
-        run: secure-keys env diff development production
+        run: bundle exec secure-keys env diff development production
 
       - name: "[diff] output includes both environment names"
         run: |
-          output=$(secure-keys env diff development production)
+          output=$(bundle exec secure-keys env diff development production)
           echo "$output"
           echo "$output" | grep -q "development" || (echo "❌ 'development' not in diff output" && exit 1)
           echo "$output" | grep -q "production"  || (echo "❌ 'production' not in diff output"  && exit 1)
@@ -106,13 +109,13 @@ jobs:
 
       - name: "[diff] unknown environment exits 1"
         run: |
-          secure-keys env diff development nonexistent 2>&1 && exit 1 || echo "✓ exits 1 for unknown environment"
+          bundle exec secure-keys env diff development nonexistent 2>&1 && exit 1 || echo "✓ exits 1 for unknown environment"
 
       - name: "[init] creates .secure-keys.yml from default template"
         run: |
           tmp=$(mktemp -d)
           cd "$tmp"
-          secure-keys env init
+          bundle exec secure-keys env init
           test -f .secure-keys.yml || (echo "❌ .secure-keys.yml not created" && exit 1)
           echo "✓ env init created .secure-keys.yml"
           cd - && rm -rf "$tmp"
@@ -121,39 +124,38 @@ jobs:
         run: |
           tmp=$(mktemp -d)
           cd "$tmp"
-          secure-keys env init 2>&1
-          secure-keys env init 2>&1 && exit 1 || echo "✓ exits 1 on duplicate init"
+          bundle exec secure-keys env init 2>&1
+          bundle exec secure-keys env init 2>&1 && exit 1 || echo "✓ exits 1 on duplicate init"
           cd - && rm -rf "$tmp"
 
       - name: "[generate] staging xcframework is produced"
         run: |
-          secure-keys env generate staging
+          bundle exec secure-keys env generate staging
           test -d .secure-keys/staging/SecureKeys.xcframework \
             || (echo "❌ .secure-keys/staging/SecureKeys.xcframework not found" && exit 1)
           echo "✓ staging xcframework generated"
 
       - name: "[generate] production xcframework is produced"
         run: |
-          secure-keys env generate production
+          bundle exec secure-keys env generate production
           test -d .secure-keys/production/SecureKeys.xcframework \
             || (echo "❌ .secure-keys/production/SecureKeys.xcframework not found" && exit 1)
           echo "✓ production xcframework generated"
 
       - name: "[generate] unknown environment exits 1"
         run: |
-          secure-keys env generate nonexistent 2>&1 && exit 1 || echo "✓ exits 1 for unknown environment"
+          bundle exec secure-keys env generate nonexistent 2>&1 && exit 1 || echo "✓ exits 1 for unknown environment"
 
       - name: "[generate] missing name without --all exits 1"
         run: |
-          secure-keys env generate 2>&1 && exit 1 || echo "✓ exits 1 when name is missing"
+          bundle exec secure-keys env generate 2>&1 && exit 1 || echo "✓ exits 1 when name is missing"
 
       - name: Upload generated xcframeworks
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: smoke-multi-environment-app
-          path: |
-            fixtures/MultiEnvironmentApp/.secure-keys/**/SecureKeys.xcframework
+          path: fixtures/MultiEnvironmentApp/.secure-keys/**/SecureKeys.xcframework
           if-no-files-found: warn
           retention-days: 3
 
@@ -169,6 +171,9 @@ jobs:
       run:
         working-directory: fixtures/SwiftUIApp+Backend
 
+    env:
+      BUNDLE_GEMFILE: ${{ github.workspace }}/Gemfile
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -182,9 +187,6 @@ jobs:
       - name: Install dependencies
         working-directory: .
         run: bundle install
-
-      - name: Install secure-keys
-        run: gem install secure-keys --no-document
 
       - name: "[structure] required files exist"
         run: |
@@ -212,10 +214,10 @@ jobs:
         run: bash -n setup && echo "✓ setup syntax OK"
 
       - name: "[cli] secure-keys --help exits 0"
-        run: secure-keys --help
+        run: bundle exec secure-keys --help
 
       - name: "[cli] secure-keys env --help exits 0"
-        run: secure-keys env --help
+        run: bundle exec secure-keys env --help
 
   uitkit-firebase:
     name: "Smoke · UIKitFirebaseApp"
@@ -228,6 +230,9 @@ jobs:
     defaults:
       run:
         working-directory: fixtures/UIKitFirebaseApp
+
+    env:
+      BUNDLE_GEMFILE: ${{ github.workspace }}/Gemfile
 
     steps:
       - name: Checkout
@@ -242,9 +247,6 @@ jobs:
       - name: Install dependencies
         working-directory: .
         run: bundle install
-
-      - name: Install secure-keys
-        run: gem install secure-keys --no-document
 
       - name: "[structure] required files exist"
         run: |
@@ -263,13 +265,13 @@ jobs:
           echo "✓ All required files present"
 
       - name: "[cli] secure-keys --help exits 0"
-        run: secure-keys --help
+        run: bundle exec secure-keys --help
 
       - name: "[cli] secure-keys env --help exits 0"
-        run: secure-keys env --help
+        run: bundle exec secure-keys env --help
 
       - name: "[cli] secure-keys validate --help exits 0"
-        run: secure-keys validate --help
+        run: bundle exec secure-keys validate --help
 
   summary:
     name: Smoke test summary
