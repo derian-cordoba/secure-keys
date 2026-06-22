@@ -59,7 +59,7 @@ jobs:
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: "3.3"
+          ruby-version: "3.3.6"
           bundler-cache: false
 
       - name: Install secure-keys
@@ -169,7 +169,7 @@ jobs:
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: "3.3"
+          ruby-version: "3.3.6"
           bundler-cache: false
 
       - name: Install secure-keys
@@ -225,7 +225,7 @@ jobs:
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: "3.3"
+          ruby-version: "3.3.6"
           bundler-cache: false
 
       - name: Install secure-keys
