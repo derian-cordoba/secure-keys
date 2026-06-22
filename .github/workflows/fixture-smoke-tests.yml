@@ -42,10 +42,6 @@ jobs:
         working-directory: fixtures/MultiEnvironmentApp
 
     env:
-      # Prevent Bundler from picking up the repo-root Gemfile when secure-keys
-      # is installed as a standalone gem (bin/secure-keys calls bundler/setup).
-      BUNDLE_GEMFILE: /dev/null
-
       # Staging secrets (source: environment) — fake values for smoke testing
       MULTI_ENV_APP_STAGING: "apiKey,analyticsKey,featureFlagKey"
       apiKey: "smoke-api-key"
@@ -65,6 +61,13 @@ jobs:
         with:
           ruby-version: "3.3.6"
           bundler-cache: false
+
+      # bin/secure-keys calls `require 'bundler/setup'`, which looks upward for a
+      # Gemfile and tries to activate every locked gem. Installing the bundle first
+      # satisfies that requirement; secure-keys is then installed on top.
+      - name: Install dependencies
+        working-directory: .
+        run: bundle install
 
       - name: Install secure-keys
         run: gem install secure-keys --no-document
@@ -166,9 +169,6 @@ jobs:
       run:
         working-directory: fixtures/SwiftUIApp+Backend
 
-    env:
-      BUNDLE_GEMFILE: /dev/null
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -178,6 +178,10 @@ jobs:
         with:
           ruby-version: "3.3.6"
           bundler-cache: false
+
+      - name: Install dependencies
+        working-directory: .
+        run: bundle install
 
       - name: Install secure-keys
         run: gem install secure-keys --no-document
@@ -225,9 +229,6 @@ jobs:
       run:
         working-directory: fixtures/UIKitFirebaseApp
 
-    env:
-      BUNDLE_GEMFILE: /dev/null
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -237,6 +238,10 @@ jobs:
         with:
           ruby-version: "3.3.6"
           bundler-cache: false
+
+      - name: Install dependencies
+        working-directory: .
+        run: bundle install
 
       - name: Install secure-keys
         run: gem install secure-keys --no-document
