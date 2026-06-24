@@ -4,7 +4,10 @@ require 'optparse'
 require_relative '../../../core/console/logger'
 require_relative 'scan/handler'
 require_relative 'scan/parser'
+require_relative 'key/handler'
+require_relative 'key/parser'
 require_relative '../../actions/scan'
+require_relative '../../actions/key'
 
 module SecureKeys
   module Validation
@@ -29,6 +32,9 @@ module SecureKeys
             when 'scan'
               Scan::Parser.new
               Actions::Scan.new.run
+            when 'key'
+              Key::Parser.new
+              Actions::Key.new.run
             when nil, '--help', '-h'
               puts self
               exit(0)
@@ -50,13 +56,16 @@ module SecureKeys
             end
             separator('')
             separator('Subcommands:')
-            separator("\tscan [path]   Scan a directory or staged git changes for exposed secrets")
+            separator("\tscan [path]          Scan a directory or staged git changes for exposed secrets")
+            separator("\tkey <name> <value>   Validate a single secret value against security rules")
             separator('')
             separator('Examples:')
             separator("\tsecure-keys validate scan")
             separator("\tsecure-keys validate scan ./src")
             separator("\tsecure-keys validate scan --staged")
             separator("\tsecure-keys validate scan --output report.json")
+            separator("\tsecure-keys validate key apiKey \"your-secret-value\"")
+            separator("\tsecure-keys validate key stripeKey \"sk_live_...\" --check-entropy")
           end
         end
       end

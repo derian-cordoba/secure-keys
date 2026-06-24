@@ -527,6 +527,49 @@ Exit codes:
 | `0` | Scan completed with no findings |
 | `1` | One or more secrets were detected |
 
+Validate a single secret value:
+
+```bash
+secure-keys validate key apiKey "your-secret-value"
+```
+
+Check entropy in addition to the standard rules:
+
+```bash
+secure-keys validate key apiKey "your-secret-value" --check-entropy
+```
+
+Emit an informational notice when a known provider pattern matches (useful for auditing non-production keys):
+
+```bash
+secure-keys validate key githubToken "ghp_abc123..." --warn-on-pattern
+```
+
+Skip the production key warning for live credentials you intentionally want to validate:
+
+```bash
+secure-keys validate key stripeKey "sk_live_abc..." --allow-production
+```
+
+Full option reference:
+
+```text
+Usage: secure-keys validate key <name> <value> [--options]
+
+    -h, --help              Show help for the validate key subcommand
+        --check-entropy     Flag values with low Shannon entropy (default: false)
+        --allow-production  Skip the production key warning (default: false)
+        --warn-on-pattern   Show an info notice when a known pattern matches (default: false)
+        --verbose           Enable verbose output (default: false)
+```
+
+Exit codes:
+
+| Code | Meaning |
+|---|---|
+| `0` | Value passed validation (no errors or critical issues) |
+| `1` | Validation failed, or `<name>`/`<value>` was not provided |
+
 ### Validating a Secret
 
 `SecureKeys::Validation::Validator` checks a single value against a set of security rules and returns a `ValidationResult`.

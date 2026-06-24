@@ -11,13 +11,16 @@ describe(SecureKeys::Validation::Console::Argument::Parser) do
       '-h, --help                       Show help for the validate command',
       '',
       'Subcommands:',
-      'scan [path]   Scan a directory or staged git changes for exposed secrets',
+      'scan [path]          Scan a directory or staged git changes for exposed secrets',
+      'key <name> <value>   Validate a single secret value against security rules',
       '',
       'Examples:',
       'secure-keys validate scan',
       'secure-keys validate scan ./src',
       'secure-keys validate scan --staged',
-      'secure-keys validate scan --output report.json'
+      'secure-keys validate scan --output report.json',
+      'secure-keys validate key apiKey "your-secret-value"',
+      'secure-keys validate key stripeKey "sk_live_..." --check-entropy'
     ]
 
     # when
