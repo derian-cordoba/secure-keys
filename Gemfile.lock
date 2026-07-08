@@ -11,6 +11,7 @@ PATH
       open3 (~> 0.2.1)
       optparse (~> 0.6.0)
       osx_keychain (~> 1.0.2)
+      rexml (~> 3.4.2)
       tty-screen (~> 0.8.2)
       xcodeproj (~> 1.27.0)
 
@@ -52,7 +53,7 @@ GEM
     rainbow (3.1.1)
     rake (13.2.1)
     regexp_parser (2.10.0)
-    rexml (3.4.1)
+    rexml (3.4.4)
     rspec (3.13.0)
       rspec-core (~> 3.13.0)
       rspec-expectations (~> 3.13.0)
